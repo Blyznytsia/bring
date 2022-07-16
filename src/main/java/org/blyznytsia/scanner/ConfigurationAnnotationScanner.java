@@ -7,7 +7,7 @@ import java.util.List;
 public class ConfigurationAnnotationScanner implements BeanScanner {
 
     @Override
-    public List<BeanDefinition<?>> scan(String packageName) {
+    public List<BeanDefinition> scan(String packageName) {
         return null;
     }
 }

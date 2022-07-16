@@ -1,13 +1,21 @@
 package org.blyznytsia.model;
 
+import lombok.Builder;
+import lombok.Data;
+
 import java.util.List;
 
-public class BeanDefinition<T> {
+@Data
+@Builder
+public class BeanDefinition {
 
-    Class<T> beanType;
-    String name;
-    Scope scope = Scope.SINGLETON;
+    private Class<?> beanType;
+    private String name;
+    private Class<?> configClass;
+    private String beanClassName;
 
-    List<BeanDefinition<?>> dependOnBeans;
+    private Scope scope = Scope.SINGLETON;
 
+    private List<String> dependsOnBeans;
+    private boolean isConfigClass;
 }

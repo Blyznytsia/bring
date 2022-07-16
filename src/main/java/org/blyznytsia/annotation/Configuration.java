@@ -19,6 +19,11 @@ import java.lang.annotation.Target;
  *         // instantiate, configure and return bean ...
  *     }
  * }</pre>
+ *
+ * @see org.blyznytsia.annotation.Autowired
+ * @see org.blyznytsia.annotation.Bean
+ * @see org.blyznytsia.annotation.Component
+ *
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

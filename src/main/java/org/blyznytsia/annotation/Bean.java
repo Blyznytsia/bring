@@ -7,9 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that a method produces a bean to be managed by the Application container.
- *
- * <h3>Overview</h3>
+ * Indicates that a method produces a bean to be managed by the Bring container.
  *
  * <p>For example: </p>
  *
@@ -20,9 +18,18 @@ import java.lang.annotation.Target;
  *         return obj;
  *     }
  * </pre>
+ *
+ * @see org.blyznytsia.annotation.Autowired
+ * @see org.blyznytsia.annotation.Component
+ * @see org.blyznytsia.annotation.Configuration
  */
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Bean {
+
+    /**
+     * Name of a bean
+     */
+    String value() default "";
 }
