@@ -1,16 +1,90 @@
 package org.blyznytsia.scanner;
 
-import org.blyznytsia.exception.NotImplementedException;
+import org.blyznytsia.annotation.Autowired;
+import org.blyznytsia.annotation.Component;
 import org.blyznytsia.model.BeanDefinition;
 import org.reflections.Reflections;
 
+import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Scanner for the @{@link Component} annotation.
+ *
+ * @author Oleksandr Vashchenko
+ */
 public class ComponentAnnotationScanner implements BeanScanner {
 
+    /**
+     * Constant of type {@link Class} that represents @{@link Component} annotation
+     */
+    private static final Class<Component> COMPONENT_ANNOTATION = Component.class;
+
+    /**
+     * Constant of type {@link Class} that represents @{@link Autowired} annotation
+     */
+    private static final Class<Autowired> AUTOWIRED_ANNOTATION = Autowired.class;
+
+    /**
+     * Scans packages to find classes annotated with @{@link Component} annotation
+     * <pre>
+     * <b>Steps:</b>
+     * 1. Scan provided package
+     * 2. Find all classes annotated with @{@link Component} annotation
+     * 3. Create {@link BeanDefinition} based on these classes
+     * 4. If the class has fields annotated with @{@link Autowired} annotation, then add dependencies to {@link BeanDefinition#dependsOnBeans}
+     * 5. Return {@link java.util.Collection} of {@link BeanDefinition}
+     * </pre>
+     *
+     * @param packageName object of type {@link String} that represents packages to scan
+     * @return {@link java.util.Collection} of {@link BeanDefinition}
+     */
     @Override
-    public List<BeanDefinition> scan(String packageName) {
-        throw new NotImplementedException("Need to implement this method");
+    public List<BeanDefinition> scan(final String packageName) {
+        final var reflections = new Reflections(packageName);
+        final var targetClasses = reflections.getTypesAnnotatedWith(COMPONENT_ANNOTATION);
+
+        return targetClasses.stream().map(this::createBeanDefinition).toList();
     }
 
+    /**
+     * @param targetClass object of type {@link Class} that is annotated
+     *                    with @{@link Component} annotation
+     * @return {@link BeanDefinition}
+     */
+    private BeanDefinition createBeanDefinition(final Class<?> targetClass) {
+        return BeanDefinition.builder()
+                .beanType(targetClass)
+                .name(getBeanDefinitionName(targetClass))
+                .beanClassName(targetClass.getName())
+                .dependsOnBeans(getAutowiredFields(targetClass))
+                .build();
+    }
+
+    /**
+     * @param targetClass object of type {@link Class} that is annotated
+     *                    with @{@link Component} annotation
+     * @return @{@link Component#value()}
+     * or {@link Class#getSimpleName()} starting with lowercase letter
+     */
+    private String getBeanDefinitionName(final Class<?> targetClass) {
+        final var annotationValue = targetClass.getAnnotation(COMPONENT_ANNOTATION).value();
+        final var simpleName = targetClass.getSimpleName().substring(0, 1).toLowerCase() +
+                targetClass.getSimpleName().substring(1);
+
+        return annotationValue.isBlank() ? simpleName : annotationValue;
+    }
+
+    /**
+     * @param targetClass object of type {@link Class} that is annotated
+     *                    with @{@link Component} annotation
+     * @return {@link java.util.Collection} of {@link String} that represents bean dependencies
+     */
+    private List<String> getAutowiredFields(final Class<?> targetClass) {
+        return Arrays.stream(targetClass.getDeclaredFields())
+                .filter(el -> el.isAnnotationPresent(AUTOWIRED_ANNOTATION))
+                .filter(el -> el.getType().isAnnotationPresent(COMPONENT_ANNOTATION))
+                .map(el -> el.getType().getName())
+                .toList();
+    }
 }
