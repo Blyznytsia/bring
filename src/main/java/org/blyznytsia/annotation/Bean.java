@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
  * @see org.blyznytsia.annotation.Configuration
  */
 
-@Target(ElementType.FIELD)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Bean {
 
@@ -32,4 +32,11 @@ public @interface Bean {
      * Name of a bean
      */
     String value() default "";
+
+    /**
+     * The optional name of a method to call on the bean instance during initialization.
+     * Not commonly used, given that the method may be called programmatically directly
+     * within the body of a Bean-annotated method.
+     */
+    String initMethod() default "";
 }

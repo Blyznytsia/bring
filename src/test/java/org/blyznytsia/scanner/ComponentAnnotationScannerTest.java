@@ -1,10 +1,9 @@
 package org.blyznytsia.scanner;
 
 
-import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.model.BeanDefinition;
-import org.blyznytsia.scanner.data.TestService1;
-import org.blyznytsia.scanner.data.TestService3;
+import org.blyznytsia.scanner.data.component_scanner.TestService1;
+import org.blyznytsia.scanner.data.component_scanner.TestService3;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -12,22 +11,18 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-@Slf4j
 class ComponentAnnotationScannerTest {
 
-    private static final String PACKAGE_NAME = "org.blyznytsia.scanner.data";
-    private static final String SERVICE1_NAME = "anotherNameService";
-    private static final String SERVICE2_NAME = "testService2";
-    private static final String SERVICE1_DEPENDENCY_NAME = TestService3.class.getName();
-    private static final String[] SERVICE2_DEPENDENCY_NAMES = {TestService1.class.getName(), TestService3.class.getName()};
-    private static final String NPE_MSG = "packageName is marked non-null but is null";
-
-    private final ComponentAnnotationScanner scanner = new ComponentAnnotationScanner();
+    static final String PACKAGE_NAME = "org.blyznytsia.scanner.data.component_scanner";
+    static final String SERVICE1_NAME = "anotherNameService";
+    static final String SERVICE2_NAME = "testService2";
+    static final String SERVICE1_DEPENDENCY_NAME = TestService3.class.getName();
+    static final String[] SERVICE2_DEPENDENCY_NAMES = {TestService1.class.getName(), TestService3.class.getName()};
+    ComponentAnnotationScanner scanner = new ComponentAnnotationScanner();
 
     @Test
-    void scan_givenValidPackage_shouldReturnValidBeanDefinitionsList() {
+    void shouldReturnValidBeanDefinitions() {
         var beanDefinitions = scanner.scan(PACKAGE_NAME);
-        log.debug("List<BeanDefinitions> [{}]: {}", beanDefinitions.size(), beanDefinitions);
 
         assertThat(beanDefinitions).map(BeanDefinition::getName)
                 .containsOnly(SERVICE2_NAME, SERVICE1_NAME);
@@ -42,13 +37,13 @@ class ComponentAnnotationScannerTest {
     }
 
     @Test
-    void scan_givenNullPackage_shouldThrowNPEWithCertainMsg() {
+    void shouldThrowNPEIfPackageIsNull() {
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(() -> scanner.scan(null))
-                .withMessage(NPE_MSG);
+                .withMessage("packageName is marked non-null but is null");
     }
 
-    private BeanDefinition getBeanDefinitionByName(List<BeanDefinition> list, String name) {
+    BeanDefinition getBeanDefinitionByName(List<BeanDefinition> list, String name) {
         return list.stream().filter(el -> el.getName().equals(name)).findFirst().orElseThrow();
     }
 }

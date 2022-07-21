@@ -44,12 +44,17 @@ public class ComponentAnnotationScanner implements BeanScanner {
      */
     @Override
     public List<BeanDefinition> scan(@NonNull String packageName) {
-        log.debug("Scanning {} package for Java @Component classes", packageName);
+        log.info("Scanning '{}' package for classes annotated wth @Component", packageName);
 
         var reflections = new Reflections(packageName);
         var targetClasses = reflections.getTypesAnnotatedWith(COMPONENT_ANNOTATION);
 
-        return targetClasses.stream().map(this::createBeanDefinition).toList();
+        log.debug("Found @Component classes: {}", targetClasses);
+
+        var beanDefinitions = targetClasses.stream().map(this::createBeanDefinition).toList();
+        log.debug("Found bean definitions classes: {}", beanDefinitions);
+
+        return beanDefinitions;
     }
 
     /**
@@ -59,9 +64,8 @@ public class ComponentAnnotationScanner implements BeanScanner {
      */
     private BeanDefinition createBeanDefinition(Class<?> targetClass) {
         return BeanDefinition.builder()
-                .beanType(targetClass)
+                .type(targetClass)
                 .name(getBeanDefinitionName(targetClass))
-                .beanClassName(targetClass.getName())
                 .dependsOnBeans(getAutowiredFields(targetClass))
                 .build();
     }
