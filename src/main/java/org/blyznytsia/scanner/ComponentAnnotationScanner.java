@@ -1,5 +1,7 @@
 package org.blyznytsia.scanner;
 
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Autowired;
 import org.blyznytsia.annotation.Component;
 import org.blyznytsia.model.BeanDefinition;
@@ -13,6 +15,7 @@ import java.util.List;
  *
  * @author Oleksandr Vashchenko
  */
+@Slf4j
 public class ComponentAnnotationScanner implements BeanScanner {
 
     /**
@@ -40,9 +43,11 @@ public class ComponentAnnotationScanner implements BeanScanner {
      * @return {@link java.util.Collection} of {@link BeanDefinition}
      */
     @Override
-    public List<BeanDefinition> scan(final String packageName) {
-        final var reflections = new Reflections(packageName);
-        final var targetClasses = reflections.getTypesAnnotatedWith(COMPONENT_ANNOTATION);
+    public List<BeanDefinition> scan(@NonNull String packageName) {
+        log.debug("Scanning {} package for Java @Component classes", packageName);
+
+        var reflections = new Reflections(packageName);
+        var targetClasses = reflections.getTypesAnnotatedWith(COMPONENT_ANNOTATION);
 
         return targetClasses.stream().map(this::createBeanDefinition).toList();
     }
@@ -52,7 +57,7 @@ public class ComponentAnnotationScanner implements BeanScanner {
      *                    with @{@link Component} annotation
      * @return {@link BeanDefinition}
      */
-    private BeanDefinition createBeanDefinition(final Class<?> targetClass) {
+    private BeanDefinition createBeanDefinition(Class<?> targetClass) {
         return BeanDefinition.builder()
                 .beanType(targetClass)
                 .name(getBeanDefinitionName(targetClass))
@@ -67,9 +72,9 @@ public class ComponentAnnotationScanner implements BeanScanner {
      * @return @{@link Component#value()}
      * or {@link Class#getSimpleName()} starting with lowercase letter
      */
-    private String getBeanDefinitionName(final Class<?> targetClass) {
-        final var annotationValue = targetClass.getAnnotation(COMPONENT_ANNOTATION).value();
-        final var simpleName = targetClass.getSimpleName().substring(0, 1).toLowerCase() +
+    private String getBeanDefinitionName(Class<?> targetClass) {
+        var annotationValue = targetClass.getAnnotation(COMPONENT_ANNOTATION).value();
+        var simpleName = targetClass.getSimpleName().substring(0, 1).toLowerCase() +
                 targetClass.getSimpleName().substring(1);
 
         return annotationValue.isBlank() ? simpleName : annotationValue;
@@ -80,10 +85,9 @@ public class ComponentAnnotationScanner implements BeanScanner {
      *                    with @{@link Component} annotation
      * @return {@link java.util.Collection} of {@link String} that represents bean dependencies
      */
-    private List<String> getAutowiredFields(final Class<?> targetClass) {
+    private List<String> getAutowiredFields(Class<?> targetClass) {
         return Arrays.stream(targetClass.getDeclaredFields())
                 .filter(el -> el.isAnnotationPresent(AUTOWIRED_ANNOTATION))
-                .filter(el -> el.getType().isAnnotationPresent(COMPONENT_ANNOTATION))
                 .map(el -> el.getType().getName())
                 .toList();
     }
