@@ -1,4 +1,4 @@
-package org.blyznytsia.scanner.data;
+package org.blyznytsia.scanner.data.component_scanner;
 
 import org.blyznytsia.annotation.Autowired;
 import org.blyznytsia.annotation.Component;

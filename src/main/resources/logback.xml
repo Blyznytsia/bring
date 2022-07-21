@@ -10,4 +10,7 @@
     <root level="debug">
         <appender-ref ref="STDOUT"/>
     </root>
+
+    <!-- to disable logs from "reflections" library-->
+    <logger name="org.reflections" level="OFF"/>
 </configuration>
