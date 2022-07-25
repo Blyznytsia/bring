@@ -1,4 +1,4 @@
-name: Build Bring library
+name: Build
 
 on:
   push:
@@ -20,8 +20,10 @@ jobs:
           distribution: 'adopt'
           cache: maven
 
-      - name: Build with Maven
-        run: mvn -B package
+      - name: Test
+        run: mvn -B test --fail-at-end
+      - name: Lint
+        run: mvn -B spotless:check
 
 #  Disabled Sonar check as we don't have any tests atm
 #

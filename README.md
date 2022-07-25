@@ -6,6 +6,7 @@
     - [Features](#features)
     - [Configuration](#configuration)
     - [Context](#context)
+- [Contribution/Development](#contributiondevelopment)
 
 ## Description
 
@@ -68,3 +69,10 @@ We have different categories of issues therefore we have such prefixes according
 4. **Release** is created for the release branch.
 
 Based on the purpose of the branch use this naming pattern `feature/id-name-of-issue` or `feature-id-name-of-issue`.
+
+### Code Format
+
+Code in this repository uses google-code-format.
+- To apply the format, run `mvn spotless:apply`.
+- Be sure to run `mvn spotless:check` before committing code.
+- To enable google-java-format in Intellij IDEA, follow this [steps](https://gerrit.cloudera.org/Documentation/dev-intellij.html#_code_style)
