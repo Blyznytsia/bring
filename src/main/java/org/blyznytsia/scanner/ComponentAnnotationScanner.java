@@ -36,11 +36,11 @@ public class ComponentAnnotationScanner implements BeanScanner {
      * 2. Find all classes annotated with @{@link Component} annotation
      * 3. Create {@link BeanDefinition} based on these classes
      * 4. If the class has fields annotated with @{@link Autowired} annotation, then add dependencies to {@link BeanDefinition#dependsOnBeans}
-     * 5. Return {@link java.util.Collection} of {@link BeanDefinition}
+     * 5. Return {@link java.util.List} of {@link BeanDefinition}
      * </pre>
      *
      * @param packageName object of type {@link String} that represents packages to scan
-     * @return {@link java.util.Collection} of {@link BeanDefinition}
+     * @return {@link java.util.List} of {@link BeanDefinition}
      */
     @Override
     public List<BeanDefinition> scan(@NonNull String packageName) {
@@ -52,7 +52,7 @@ public class ComponentAnnotationScanner implements BeanScanner {
         log.debug("Found @Component classes: {}", targetClasses);
 
         var beanDefinitions = targetClasses.stream().map(this::createBeanDefinition).toList();
-        log.debug("Found bean definitions classes: {}", beanDefinitions);
+        log.debug("Created BeanDefinition classes: {}", beanDefinitions);
 
         return beanDefinitions;
     }
@@ -87,7 +87,7 @@ public class ComponentAnnotationScanner implements BeanScanner {
     /**
      * @param targetClass object of type {@link Class} that is annotated
      *                    with @{@link Component} annotation
-     * @return {@link java.util.Collection} of {@link String} that represents bean dependencies
+     * @return {@link java.util.List} of {@link String} that represents bean dependencies
      */
     private List<String> getAutowiredFields(Class<?> targetClass) {
         return Arrays.stream(targetClass.getDeclaredFields())
