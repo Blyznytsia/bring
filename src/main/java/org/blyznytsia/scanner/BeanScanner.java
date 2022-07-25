@@ -1,16 +1,14 @@
 package org.blyznytsia.scanner;
 
+import java.util.List;
 import org.blyznytsia.model.BeanDefinition;
 
-import java.util.List;
-
 /**
- * A bean definition scanner that detects bean candidates in the package, registering corresponding bean definitions.
- * Candidate classes are detected through configurable type filters.
- * The default filters include classes that are annotated with Bring's
- * {@link org.blyznytsia.annotation.Component Component},
- * {@link org.blyznytsia.annotation.Configuration Configuration},
- * {@link org.blyznytsia.annotation.Bean Bean}
+ * A bean definition scanner that detects bean candidates in the package, registering corresponding
+ * bean definitions. Candidate classes are detected through configurable type filters. The default
+ * filters include classes that are annotated with Bring's {@link
+ * org.blyznytsia.annotation.Component Component}, {@link org.blyznytsia.annotation.Configuration
+ * Configuration}, {@link org.blyznytsia.annotation.Bean Bean}
  *
  * @see org.blyznytsia.annotation.Component
  * @see org.blyznytsia.annotation.Configuration
@@ -18,6 +16,5 @@ import java.util.List;
  */
 public interface BeanScanner {
 
-    List<BeanDefinition> scan(String packageName);
-
+  List<BeanDefinition> scan(String packageName);
 }

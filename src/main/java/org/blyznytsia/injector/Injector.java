@@ -1,14 +1,12 @@
 package org.blyznytsia.injector;
 
-import org.blyznytsia.model.BeanDefinition;
-
 import java.util.List;
 import java.util.Map;
+import org.blyznytsia.model.BeanDefinition;
 
 public interface Injector {
 
-    <T> T injectBean(BeanDefinition beanDefinition);
+  <T> T injectBean(BeanDefinition beanDefinition);
 
-    Map<BeanDefinition, Object> injectBeans(List<BeanDefinition> beanDefinitions);
-
+  Map<BeanDefinition, Object> injectBeans(List<BeanDefinition> beanDefinitions);
 }
