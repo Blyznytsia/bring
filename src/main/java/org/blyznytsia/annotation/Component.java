@@ -6,11 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that an annotated class is a "component".
- * Such classes are considered as candidates for auto-detection
- * when using annotation-based configuration and classpath scanning.
+ * Indicates that an annotated class is a "component". Such classes are considered as candidates for
+ * auto-detection when using annotation-based configuration and classpath scanning.
  *
- * <p>For example: </p>
+ * <p>For example:
  *
  * <pre class="code">
  * &#064;Component
@@ -28,5 +27,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Component {
 
-    String value() default "";
+  String value() default "";
 }

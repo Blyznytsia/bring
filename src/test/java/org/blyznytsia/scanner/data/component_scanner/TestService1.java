@@ -6,6 +6,5 @@ import org.blyznytsia.annotation.Component;
 @Component("anotherNameService")
 public class TestService1 {
 
-    @Autowired
-    private TestService3 service;
+  @Autowired private TestService3 service;
 }

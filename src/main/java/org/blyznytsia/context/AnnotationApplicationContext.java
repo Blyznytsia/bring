@@ -1,21 +1,20 @@
 package org.blyznytsia.context;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.blyznytsia.exception.NotImplementedException;
 import org.blyznytsia.injector.Injector;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.scanner.BeanScanner;
 import org.reflections.Reflections;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Implementation of ApplicationContext. The main responsibilities of this class is
- * to delegate scanners to find all beans with annotation. After scanner scanned this
- * package creates a Collection of BeanDefinition.
+ * Implementation of ApplicationContext. The main responsibilities of this class is to delegate
+ * scanners to find all beans with annotation. After scanner scanned this package creates a
+ * Collection of BeanDefinition.
  *
- * <p>Example:</p>
+ * <p>Example:
  *
  * <pre class=code>
  *
@@ -34,29 +33,27 @@ import java.util.Map;
  * @see org.blyznytsia.scanner.BeanScanner
  * @see org.blyznytsia.injector.Injector
  */
-
 public class AnnotationApplicationContext implements ApplicationContext {
 
-    private Injector injector;
-    private List<BeanScanner> scanners;
-    private Map<BeanDefinition, Object> container = new HashMap<>();
-    private Reflections reflections;
+  private Injector injector;
+  private List<BeanScanner> scanners;
+  private Map<BeanDefinition, Object> container = new HashMap<>();
+  private Reflections reflections;
 
-    public AnnotationApplicationContext(String packageScan) {
-    }
+  public AnnotationApplicationContext(String packageScan) {}
 
-    @Override
-    public <T> T getBean(Class<T> beanType) {
-        throw new NotImplementedException("Need to implement this method");
-    }
+  @Override
+  public <T> T getBean(Class<T> beanType) {
+    throw new NotImplementedException("Need to implement this method");
+  }
 
-    @Override
-    public <T> T getBean(String name, Class<T> beanType) {
-        throw new NotImplementedException("Need to implement this method");
-    }
+  @Override
+  public <T> T getBean(String name, Class<T> beanType) {
+    throw new NotImplementedException("Need to implement this method");
+  }
 
-    @Override
-    public <T> Map<BeanDefinition, T> getAllBeans(Class<T> beanType) {
-        throw new NotImplementedException("Need to implement this method");
-    }
+  @Override
+  public <T> Map<BeanDefinition, T> getAllBeans(Class<T> beanType) {
+    throw new NotImplementedException("Need to implement this method");
+  }
 }
