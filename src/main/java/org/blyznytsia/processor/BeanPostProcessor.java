@@ -1,14 +1,10 @@
 package org.blyznytsia.processor;
 
-import org.blyznytsia.context.ApplicationContext;
+import org.blyznytsia.model.BeanDefinition;
 
 public interface BeanPostProcessor {
 
-    default Object configureBeforeInitialization(Object bean, ApplicationContext applicationContext) {
-        return bean;
-    }
-
-    default Object configureAfterInitialization(Object bean, ApplicationContext applicationContext) {
+    default Object configure(Object bean, BeanDefinition beanDefinition) {
         return bean;
     }
 }
