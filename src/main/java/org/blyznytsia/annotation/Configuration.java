@@ -6,9 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that a class declares one or more {@link Bean @Bean} methods and
- * may be processed by the Application container to generate bean definitions and
- * service requests for those beans at runtime, for example:
+ * Indicates that a class declares one or more {@link Bean @Bean} methods and may be processed by
+ * the Application container to generate bean definitions and service requests for those beans at
+ * runtime, for example:
  *
  * <pre class="code">
  * &#064;Configuration
@@ -23,9 +23,7 @@ import java.lang.annotation.Target;
  * @see org.blyznytsia.annotation.Autowired
  * @see org.blyznytsia.annotation.Bean
  * @see org.blyznytsia.annotation.Component
- *
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Configuration {
-}
+public @interface Configuration {}
