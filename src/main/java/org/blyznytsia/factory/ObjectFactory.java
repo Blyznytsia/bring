@@ -5,6 +5,7 @@ import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.processor.BeanPostProcessor;
 import org.reflections.Reflections;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 public class ObjectFactory {
 
     private final Reflections reflections;
-    private List<BeanPostProcessor> postProcessors;
+    private final List<BeanPostProcessor> postProcessors = new ArrayList<>();
 
     public ObjectFactory(Reflections reflections) {
         this.reflections = reflections;
