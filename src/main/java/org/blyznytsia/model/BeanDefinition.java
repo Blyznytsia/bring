@@ -1,23 +1,27 @@
 package org.blyznytsia.model;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Data
 @Builder
 @ToString
-// TODO: define fields to be used in equals and hashcode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class BeanDefinition {
 
-  private Class<?> type;
-  private String name;
+  @EqualsAndHashCode.Include private Class<?> type;
+  @EqualsAndHashCode.Include private String name;
   @Builder.Default private Scope scope = Scope.SINGLETON;
-  private List<String> dependsOnBeans;
+  private List<BeanDefinition> requiredDependencies;
+  private List<BeanDefinition> fieldDependencies;
   // true for beans declared in @Configuration classes
   private boolean configClassDependency;
+  private Constructor<?> constructor;
 
   //  for bean definitions from @Configuration classes
   private Class<?> configClass;

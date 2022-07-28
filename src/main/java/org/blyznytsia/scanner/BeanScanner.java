@@ -16,5 +16,5 @@ import org.blyznytsia.model.BeanDefinition;
  */
 public interface BeanScanner {
 
-  List<BeanDefinition> scan(String packageName);
+  List<BeanDefinition> scan(String... packages);
 }

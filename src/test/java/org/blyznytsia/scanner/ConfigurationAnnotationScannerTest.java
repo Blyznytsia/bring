@@ -4,7 +4,9 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.blyznytsia.model.Scope.SINGLETON;
-import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.*;
+import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.AnotherDependency;
+import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.Dependency;
+import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.Entity;
 
 import java.util.List;
 import org.blyznytsia.model.BeanDefinition;
@@ -40,7 +42,8 @@ class ConfigurationAnnotationScannerTest {
             .beanMethod(
                 TestConfig.class.getMethod("entity", Dependency.class, AnotherDependency.class))
             .configClass(TestConfig.class)
-            .dependsOnBeans(List.of(Dependency.class.getName(), AnotherDependency.class.getName()))
+            //            .dependsOnBeans(List.of(Dependency.class.getName(),
+            // AnotherDependency.class.getName()))
             .scope(SINGLETON)
             .initMethod("init")
             .build();
@@ -52,7 +55,7 @@ class ConfigurationAnnotationScannerTest {
             .configClassDependency(true)
             .beanMethod(TestConfig.class.getMethod("dependency2"))
             .configClass(TestConfig.class)
-            .dependsOnBeans(emptyList())
+            .requiredDependencies(emptyList())
             .initMethod(DEFAULT_INIT_METHOD_NAME)
             .scope(SINGLETON)
             .build();

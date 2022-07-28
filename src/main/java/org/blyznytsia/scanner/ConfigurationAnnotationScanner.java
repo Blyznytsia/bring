@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Bean;
 import org.blyznytsia.annotation.Configuration;
@@ -23,18 +22,18 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
    * identifies methods annotated with {@link Bean} within those classes and builds {@link
    * BeanDefinition} out of them.
    *
-   * @param packageName package to be scanned
+   * @param packages package to be scanned
    * @return a list of created {@link BeanDefinition}
    */
   @Override
-  public List<BeanDefinition> scan(@NonNull String packageName) {
-    if (packageName.isBlank()) {
+  public List<BeanDefinition> scan(String... packages) {
+    if (packages.length == 0) {
       throw new IllegalArgumentException("Package cannot be blank");
     }
 
-    log.info("Scanning '{}' package for classes annotated wth @Configuration", packageName);
+    log.info("Scanning '{}' package for classes annotated wth @Configuration", packages);
     var configurationsClasses =
-        new Reflections(packageName).getTypesAnnotatedWith(Configuration.class);
+        new Reflections((Object[]) packages).getTypesAnnotatedWith(Configuration.class);
     log.debug("Found configurations classes: {}", configurationsClasses);
 
     List<BeanDefinition> allDefinitions = new ArrayList<>();
@@ -67,7 +66,7 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
         .name(resolveBeanNameFromMethod(method))
         .type(method.getReturnType())
         .initMethod(method.getAnnotation(Bean.class).initMethod())
-        .dependsOnBeans(findDependencies(method))
+        //        .dependsOnBeans(findDependencies(method))
         .build();
   }
 

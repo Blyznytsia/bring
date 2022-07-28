@@ -1,52 +1,68 @@
 package org.blyznytsia.factory;
 
-import lombok.SneakyThrows;
-import org.blyznytsia.model.BeanDefinition;
-import org.blyznytsia.processor.BeanPostProcessor;
-import org.reflections.Reflections;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.blyznytsia.bpp.BeanPostProcessor;
+import org.blyznytsia.model.BeanDefinition;
+import org.blyznytsia.util.DependencyGraph;
+import org.reflections.Reflections;
 
+@Slf4j
 public class ObjectFactory {
 
-    private final Reflections reflections;
-    private final List<BeanPostProcessor> postProcessors = new ArrayList<>();
+  private final Map<BeanDefinition, Object> cache = new HashMap<>();
+  private final List<BeanPostProcessor> beanPostProcessors;
 
-    public ObjectFactory(Reflections reflections) {
-        this.reflections = reflections;
-        initPostProcessors();
+  public ObjectFactory() {
+    this.beanPostProcessors = initPostProcessors();
+  }
+
+  public Map<BeanDefinition, Object> createBeans(List<BeanDefinition> definitions) {
+    DependencyGraph dependencyGraph = new DependencyGraph(definitions);
+    dependencyGraph.sort().forEach(this::createBean);
+    return cache;
+  }
+
+  @SneakyThrows
+  private List<BeanPostProcessor> initPostProcessors() {
+    Reflections reflections = new Reflections("org.blyznytsia.bpp");
+    var targetClasses = reflections.getSubTypesOf(BeanPostProcessor.class);
+
+    List<BeanPostProcessor> processors = new ArrayList<>();
+    for (var type : targetClasses) {
+      BeanPostProcessor instance = type.getConstructor().newInstance();
+      processors.add(instance);
     }
 
-    @SneakyThrows
-    public Object createObject(BeanDefinition beanDefinition) {
-        var bean = beanDefinition.getType().getDeclaredConstructor().newInstance();
-        return configure(bean, beanDefinition);
+    return processors;
+  }
+
+  private void createBean(BeanDefinition definition) {
+    if (!cache.containsKey(definition)) {
+      log.debug("PROCESSING BEAN WITH NAME: {}", definition.getName());
+      Object bean = createComponentBean(definition);
+      beanPostProcessors.forEach(bpp -> bpp.configure(bean, cache));
+      cache.put(definition, bean);
     }
+  }
 
-    public Map<BeanDefinition, Object> createObjects(List<BeanDefinition> beanDefinitions) {
-        return beanDefinitions.stream()
-                .collect(Collectors.toMap(Function.identity(), this::createObject));
-    }
+  private Object createComponentBean(BeanDefinition definition) {
+    definition.getRequiredDependencies().forEach(this::createBean);
+    return instantiateComponentBean(definition);
+  }
 
-    @SneakyThrows
-    private void initPostProcessors() {
-        var postProcessorClasses =
-                reflections.getSubTypesOf(BeanPostProcessor.class);
+  @SneakyThrows
+  private Object instantiateComponentBean(BeanDefinition definition) {
+    var constructor = definition.getConstructor();
+    var constructorArgs = definition.getRequiredDependencies().stream().map(cache::get).toArray();
 
-        for (var postProcessorClass : postProcessorClasses) {
-            postProcessors.add(postProcessorClass.getDeclaredConstructor().newInstance());
-        }
-    }
+    Object instance = constructor.newInstance(constructorArgs);
+    log.debug("INSTANTIATED: {}", definition);
 
-    private Object configure(Object bean, BeanDefinition beanDefinition) {
-        for (var postProcessor : postProcessors) {
-            bean = postProcessor.configure(bean, beanDefinition);
-        }
-
-        return bean;
-    }
+    return instance;
+  }
 }
