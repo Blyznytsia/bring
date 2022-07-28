@@ -1,4 +1,3 @@
 package org.blyznytsia.validator;
 
-public class ServiceThree {
-}
+public class Service2 {}
