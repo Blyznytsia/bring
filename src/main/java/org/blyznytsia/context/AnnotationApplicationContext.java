@@ -11,9 +11,9 @@ import org.blyznytsia.scanner.BeanScanner;
 import org.reflections.Reflections;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -45,14 +45,13 @@ public class AnnotationApplicationContext implements ApplicationContext {
 
     @Getter
     private final Reflections reflections;
-    private final Map<BeanDefinition, Object> container;
+    private final Map<BeanDefinition, Object> container = new HashMap();
 
     public AnnotationApplicationContext(String packageName) {
         this.reflections = new Reflections(packageName);
         var beanDefinitions = initAndRunScanners(packageName);
-        var map = new ObjectFactory(reflections)
+        new ObjectFactory(reflections, container)
                 .createObjects(beanDefinitions);
-        this.container = new ConcurrentHashMap<>(map);
     }
 
     @Override

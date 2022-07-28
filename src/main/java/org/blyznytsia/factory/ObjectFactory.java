@@ -8,28 +8,27 @@ import org.reflections.Reflections;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class ObjectFactory {
 
+    private final Map<BeanDefinition, Object> container;
     private final Reflections reflections;
     private final List<BeanPostProcessor> postProcessors = new ArrayList<>();
 
-    public ObjectFactory(Reflections reflections) {
+    public ObjectFactory(Reflections reflections, Map<BeanDefinition, Object> container) {
+        this.container = container;
         this.reflections = reflections;
         initPostProcessors();
     }
 
     @SneakyThrows
-    public Object createObject(BeanDefinition beanDefinition) {
+    public void createObject(BeanDefinition beanDefinition) {
         var bean = beanDefinition.getType().getDeclaredConstructor().newInstance();
-        return configure(bean, beanDefinition);
+        container.put(beanDefinition, configure(bean, beanDefinition));
     }
 
-    public Map<BeanDefinition, Object> createObjects(List<BeanDefinition> beanDefinitions) {
-        return beanDefinitions.stream()
-                .collect(Collectors.toMap(Function.identity(), this::createObject));
+    public void createObjects(List<BeanDefinition> beanDefinitions) {
+        beanDefinitions.forEach(this::createObject);
     }
 
     @SneakyThrows
@@ -44,7 +43,7 @@ public class ObjectFactory {
 
     private Object configure(Object bean, BeanDefinition beanDefinition) {
         for (var postProcessor : postProcessors) {
-            bean = postProcessor.configure(bean, beanDefinition);
+            bean = postProcessor.configure(bean, beanDefinition, container);
         }
 
         return bean;
