@@ -1,10 +1,9 @@
 package org.blyznytsia.bpp;
 
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Autowired;
+import org.blyznytsia.context.AnnotationApplicationContext;
 import org.blyznytsia.exception.BeanConfigurationException;
-import org.blyznytsia.model.BeanDefinition;
 
 /**
  * Implementation of {@link BeanPostProcessor} interface that injects beans into fields annotated
@@ -20,17 +19,13 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
    * @param context application context to fetch beans from for injections
    */
   @Override
-  public void configure(Object bean, Map<BeanDefinition, Object> cache) {
-    log.debug("Configuring bean of {} type", bean.getClass());
+  public void configure(Object bean, AnnotationApplicationContext context) {
     try {
       for (var field : bean.getClass().getDeclaredFields()) {
         if (field.isAnnotationPresent(Autowired.class)) {
+          log.debug("Configuring bean of {} type", bean.getClass());
           field.setAccessible(true);
-          var value =
-              cache.values().stream()
-                  .filter(v -> field.getType().equals(v.getClass()))
-                  .findFirst()
-                  .get();
+          var value = context.getBean(field.getType());
           field.set(bean, value);
 
           log.trace(

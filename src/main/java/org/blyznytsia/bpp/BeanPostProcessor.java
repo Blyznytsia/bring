@@ -1,9 +1,8 @@
 package org.blyznytsia.bpp;
 
-import java.util.Map;
-import org.blyznytsia.model.BeanDefinition;
+import org.blyznytsia.context.AnnotationApplicationContext;
 
 public interface BeanPostProcessor {
 
-  void configure(Object bean, Map<BeanDefinition, Object> cache);
+  void configure(Object bean, AnnotationApplicationContext cache);
 }

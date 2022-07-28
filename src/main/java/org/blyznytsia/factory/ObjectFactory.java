@@ -1,30 +1,22 @@
 package org.blyznytsia.factory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.bpp.BeanPostProcessor;
+import org.blyznytsia.context.AnnotationApplicationContext;
 import org.blyznytsia.model.BeanDefinition;
-import org.blyznytsia.util.DependencyGraph;
 import org.reflections.Reflections;
 
 @Slf4j
 public class ObjectFactory {
-
-  private final Map<BeanDefinition, Object> cache = new HashMap<>();
   private final List<BeanPostProcessor> beanPostProcessors;
+  private final AnnotationApplicationContext context;
 
-  public ObjectFactory() {
+  public ObjectFactory(AnnotationApplicationContext context) {
+    this.context = context;
     this.beanPostProcessors = initPostProcessors();
-  }
-
-  public Map<BeanDefinition, Object> createBeans(List<BeanDefinition> definitions) {
-    DependencyGraph dependencyGraph = new DependencyGraph(definitions);
-    dependencyGraph.sort().forEach(this::createBean);
-    return cache;
   }
 
   @SneakyThrows
@@ -41,27 +33,45 @@ public class ObjectFactory {
     return processors;
   }
 
-  private void createBean(BeanDefinition definition) {
-    if (!cache.containsKey(definition)) {
-      log.debug("PROCESSING BEAN WITH NAME: {}", definition.getName());
-      Object bean = createComponentBean(definition);
-      beanPostProcessors.forEach(bpp -> bpp.configure(bean, cache));
-      cache.put(definition, bean);
+  public Object createBean(BeanDefinition definition) {
+    if (context.contains(definition)) {
+      return context.getBean(definition.getType());
     }
+
+    log.debug("PROCESSING BEAN WITH NAME: {}", definition.getName());
+
+    Object bean;
+    if (definition.isConfigClassDependency()) {
+      bean = instantiateConfigBean(definition);
+    } else {
+      bean = instantiateComponentBean(definition);
+    }
+
+    beanPostProcessors.forEach(bpp -> bpp.configure(bean, context));
+
+    return bean;
   }
 
-  private Object createComponentBean(BeanDefinition definition) {
-    definition.getRequiredDependencies().forEach(this::createBean);
-    return instantiateComponentBean(definition);
+  @SneakyThrows
+  private Object instantiateConfigBean(BeanDefinition definition) {
+    var beanMethod = definition.getBeanMethod();
+    var methodArgs = definition.getRequiredDependencies().stream().map(this::createBean).toArray();
+
+    Object configInstance = definition.getConfigClass().getDeclaredConstructor().newInstance();
+    Object instance = beanMethod.invoke(configInstance, methodArgs);
+    log.debug("INSTANTIATED: {}", definition.getName());
+
+    return instance;
   }
 
   @SneakyThrows
   private Object instantiateComponentBean(BeanDefinition definition) {
     var constructor = definition.getConstructor();
-    var constructorArgs = definition.getRequiredDependencies().stream().map(cache::get).toArray();
+    var constructorArgs =
+        definition.getRequiredDependencies().stream().map(this::createBean).toArray();
 
     Object instance = constructor.newInstance(constructorArgs);
-    log.debug("INSTANTIATED: {}", definition);
+    log.debug("INSTANTIATED: {}", definition.getName());
 
     return instance;
   }

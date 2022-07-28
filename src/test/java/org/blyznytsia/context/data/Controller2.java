@@ -5,20 +5,18 @@ import org.blyznytsia.annotation.Component;
 import org.blyznytsia.annotation.Value;
 
 @Component
-public class Controller {
+public class Controller2 {
 
   @Autowired private ServiceE serviceE;
 
   @Value("db.url")
   private String dbUrl;
 
-  //  @Autowired private Entity entity;
-
-  private ServiceA serviceA;
-  private ServiceB serviceB;
+  private final ServiceA serviceA;
+  private final ServiceB serviceB;
 
   @Autowired
-  public Controller(ServiceA serviceA, ServiceB serviceB) {
+  public Controller2(ServiceA serviceA, ServiceB serviceB) {
     this.serviceA = serviceA;
     this.serviceB = serviceB;
   }

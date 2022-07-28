@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Value {
 
-  String value();
+  String value() default "";
 }

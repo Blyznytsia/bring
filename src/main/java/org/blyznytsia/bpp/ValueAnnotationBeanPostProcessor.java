@@ -1,11 +1,10 @@
 package org.blyznytsia.bpp;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Properties;
 import org.blyznytsia.annotation.Value;
-import org.blyznytsia.model.BeanDefinition;
-import org.blyznytsia.util.TypeResolverUtil;
+import org.blyznytsia.context.AnnotationApplicationContext;
+import org.blyznytsia.util.TypeResolver;
 
 public class ValueAnnotationBeanPostProcessor implements BeanPostProcessor {
 
@@ -16,7 +15,7 @@ public class ValueAnnotationBeanPostProcessor implements BeanPostProcessor {
   }
 
   @Override
-  public void configure(Object bean, Map<BeanDefinition, Object> cache) {
+  public void configure(Object bean, AnnotationApplicationContext cache) {
     for (var field : bean.getClass().getDeclaredFields()) {
 
       if (field.isAnnotationPresent(Value.class)) {
@@ -28,7 +27,7 @@ public class ValueAnnotationBeanPostProcessor implements BeanPostProcessor {
 
         try {
           field.setAccessible(true);
-          field.set(bean, TypeResolverUtil.parseToType((String) value, field.getType()));
+          field.set(bean, TypeResolver.parseToType((String) value, field.getType()));
         } catch (IllegalAccessException | NumberFormatException | ClassCastException e) {
           throw new RuntimeException(
               String.format(

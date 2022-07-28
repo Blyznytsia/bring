@@ -3,6 +3,8 @@ package org.blyznytsia.scanner;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Bean;
@@ -36,19 +38,15 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
         new Reflections((Object[]) packages).getTypesAnnotatedWith(Configuration.class);
     log.debug("Found configurations classes: {}", configurationsClasses);
 
-    List<BeanDefinition> allDefinitions = new ArrayList<>();
+    List<BeanDefinition> definitions =
+        configurationsClasses.stream()
+            .map(this::findDefinitionsForDeclaredBeans)
+            .flatMap(Collection::stream)
+            .toList();
 
-    for (var configClass : configurationsClasses) {
-      var configDefinition =
-          BeanDefinition.builder().name(resolveBeanName(configClass)).type(configClass).build();
-      var declaredBeansDefinitions = findDefinitionsForDeclaredBeans(configClass);
+    log.debug("Scanning is finished. Found bean definitions: {}", definitions);
 
-      allDefinitions.add(configDefinition);
-      allDefinitions.addAll(declaredBeansDefinitions);
-    }
-    log.debug("Scanning is finished. Found bean definitions: {}", allDefinitions);
-
-    return allDefinitions;
+    return definitions;
   }
 
   private List<BeanDefinition> findDefinitionsForDeclaredBeans(Class<?> configClass) {
@@ -59,6 +57,7 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
   }
 
   private BeanDefinition createDefinition(Class<?> configClass, Method method) {
+    List<BeanDefinition> dependencies = findDependencies(configClass, method);
     return BeanDefinition.builder()
         .configClass(configClass)
         .configClassDependency(true)
@@ -66,15 +65,33 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
         .name(resolveBeanNameFromMethod(method))
         .type(method.getReturnType())
         .initMethod(method.getAnnotation(Bean.class).initMethod())
-        //        .dependsOnBeans(findDependencies(method))
+        .requiredDependencies(dependencies)
+        .fieldDependencies(Collections.emptyList())
         .build();
   }
 
   // TODO: move methods for extracting information for BeanDefinition fields to BeanDefinition or
   // helper class.
   // TODO: revisit type for List<String> dependencies ... should be map
-  private List<String> findDependencies(Method method) {
-    return Arrays.stream(method.getParameterTypes()).map(Class::getName).toList();
+  private List<BeanDefinition> findDependencies(Class<?> configClass, Method method) {
+    List<BeanDefinition> dependencies = new ArrayList<>();
+
+    List<Class<?>> methodParams = Arrays.stream(method.getParameterTypes()).toList();
+
+    for (Class<?> methodParam : methodParams) {
+      List<Method> beanMethods =
+          Arrays.stream(configClass.getDeclaredMethods())
+              .filter(m -> m.isAnnotationPresent(Bean.class))
+              .filter(m -> m.getReturnType().equals(methodParam))
+              .toList();
+
+      for (Method beanMethod : beanMethods) {
+        BeanDefinition dependency = createDefinition(configClass, beanMethod);
+        dependencies.add(dependency);
+      }
+    }
+
+    return dependencies;
   }
 
   private String resolveBeanNameFromMethod(Method beanMethod) {
