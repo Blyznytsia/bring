@@ -1,12 +1,11 @@
 package org.blyznytsia.processor;
 
+import org.blyznytsia.context.ApplicationContext;
 import org.blyznytsia.model.BeanDefinition;
-
-import java.util.Map;
 
 public interface BeanPostProcessor {
 
-    default Object configure(Object bean, BeanDefinition beanDefinition, Map<BeanDefinition, Object> container) {
-        return bean;
-    }
+  default Object configure(Object bean, BeanDefinition beanDefinition, ApplicationContext context) {
+    return bean;
+  }
 }
