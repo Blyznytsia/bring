@@ -45,9 +45,9 @@ public class AnnotationApplicationContext implements ApplicationContext {
   private final Reflections reflections;
   private final Map<BeanDefinition, Object> container = new HashMap<>();
 
-  public AnnotationApplicationContext(String... packageNames) {
-    this.reflections = new Reflections((Object[]) packageNames);
-    var beanDefinitions = initAndRunScanners(packageNames);
+  public AnnotationApplicationContext(String packageName) {
+    this.reflections = new Reflections(packageName);
+    var beanDefinitions = initAndRunScanners(packageName);
     new ObjectFactory(this).initiateContext(beanDefinitions);
   }
 
@@ -81,15 +81,13 @@ public class AnnotationApplicationContext implements ApplicationContext {
   }
 
   @SneakyThrows
-  private List<BeanDefinition> initAndRunScanners(String... packageNames) {
+  private List<BeanDefinition> initAndRunScanners(String packageName) {
     var scannerClasses = reflections.getSubTypesOf(BeanScanner.class);
     var list = new ArrayList<BeanDefinition>();
 
     for (var scannerClass : scannerClasses) {
       var beanScanner = scannerClass.getDeclaredConstructor().newInstance();
-      for (String packageName : packageNames) {
-        list.addAll(beanScanner.scan(packageName));
-      }
+      list.addAll(beanScanner.scan(packageName));
     }
 
     return list;

@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 @Slf4j
 class AnnotationApplicationContextTest {
 
-  private final ApplicationContext ctx =
-      new AnnotationApplicationContext("org.blyznytsia.scanner", "org.blyznytsia.context.data");
+  private final ApplicationContext ctx = new AnnotationApplicationContext("org.blyznytsia");
 
   /*
    *      Bean1    Bean4
