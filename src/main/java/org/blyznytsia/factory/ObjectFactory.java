@@ -64,15 +64,17 @@ public class ObjectFactory {
     return instance;
   }
 
-  @SneakyThrows
   private Object instantiateComponentBean(BeanDefinition definition) {
-    var constructor = definition.getConstructor();
-    var constructorArgs =
-        definition.getRequiredDependencies().stream().map(this::createBean).toArray();
+    try {
+      var constructor = definition.getConstructor();
+      var constructorArgs =
+          definition.getRequiredDependencies().stream().map(this::createBean).toArray();
 
-    Object instance = constructor.newInstance(constructorArgs);
-    log.debug("INSTANTIATED: {}", definition.getName());
-
-    return instance;
+      Object instance = constructor.newInstance(constructorArgs);
+      log.debug("INSTANTIATED: {}", definition.getName());
+      return instance;
+    } catch (Exception e) {
+      throw new RuntimeException(definition.toString(), e);
+    }
   }
 }

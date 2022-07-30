@@ -16,6 +16,7 @@ public class BeanDefinition {
 
   @EqualsAndHashCode.Include private Class<?> type;
   @EqualsAndHashCode.Include private String name;
+  @EqualsAndHashCode.Include private String qualifiedName;
   @Builder.Default private Scope scope = Scope.SINGLETON;
   private List<BeanDefinition> requiredDependencies;
   private List<BeanDefinition> fieldDependencies;

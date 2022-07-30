@@ -20,7 +20,7 @@ class ConfigurationAnnotationScannerTest {
 
   static final String TEST_PACKAGE = "org.blyznytsia.scanner.data.configuration_scanner";
   static final String DEFAULT_INIT_METHOD_NAME = "";
-  BeanScanner scanner = new ConfigurationAnnotationScanner();
+  BeanScanner scanner = new ConfigurationAnnotationScanner(TEST_PACKAGE);
 
   @DisplayName(
       """
@@ -29,7 +29,7 @@ class ConfigurationAnnotationScannerTest {
             """)
   @Test
   void shouldScanAndBuildDefinitionsForBeansAndConfiguration() throws NoSuchMethodException {
-    var actualDefinitions = scanner.scan(TEST_PACKAGE);
+    var actualDefinitions = scanner.scan();
 
     var configDefinition =
         BeanDefinition.builder().name("testConfig").type(TestConfig.class).scope(SINGLETON).build();
@@ -68,7 +68,7 @@ class ConfigurationAnnotationScannerTest {
   @DisplayName("@Bean('beanName') should be used for bean definition name if provided")
   @Test
   void shouldUseBeanNameIfSet() {
-    var actualDefinitions = scanner.scan(TEST_PACKAGE);
+    var actualDefinitions = scanner.scan();
 
     assertThat(actualDefinitions)
         .filteredOn(beanDefinition -> beanDefinition.getName().equals("beanForEntity"))
@@ -79,7 +79,7 @@ class ConfigurationAnnotationScannerTest {
       "Method name should be used for bean definition name if no @Bean('beanName') is set ")
   @Test
   void shouldUseMethodNameForAsBeanName() {
-    var actualDefinitions = scanner.scan(TEST_PACKAGE);
+    var actualDefinitions = scanner.scan();
 
     assertThat(actualDefinitions)
         .filteredOn(beanDefinition -> beanDefinition.getName().equals("dependency2"))
@@ -90,7 +90,7 @@ class ConfigurationAnnotationScannerTest {
   @ParameterizedTest
   @ValueSource(strings = {" ", ""})
   void shouldThrowExceptionIfEmptyPackageProvided(String packageName) {
-    assertThatThrownBy(() -> scanner.scan(packageName))
+    assertThatThrownBy(() -> scanner.scan())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Package cannot be blank");
   }
@@ -98,7 +98,7 @@ class ConfigurationAnnotationScannerTest {
   @DisplayName("NPE should be thrown if package is null")
   @Test
   void shouldThrowNPEIfPackageIsNull() {
-    assertThatThrownBy(() -> scanner.scan(null))
+    assertThatThrownBy(() -> scanner.scan())
         .isInstanceOf(NullPointerException.class)
         .hasMessageContaining("packageName is marked non-null but is null");
   }

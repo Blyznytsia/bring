@@ -1,8 +1,12 @@
 package org.blyznytsia.bpp;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.util.Collections;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Autowired;
-import org.blyznytsia.context.AnnotationApplicationContext;
+import org.blyznytsia.context.ApplicationContext;
 import org.blyznytsia.exception.BeanConfigurationException;
 
 /**
@@ -19,13 +23,13 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
    * @param context application context to fetch beans from for injections
    */
   @Override
-  public void configure(Object bean, AnnotationApplicationContext context) {
+  public void configure(Object bean, ApplicationContext context) {
     try {
       for (var field : bean.getClass().getDeclaredFields()) {
         if (field.isAnnotationPresent(Autowired.class)) {
           log.debug("Configuring bean of {} type", bean.getClass());
           field.setAccessible(true);
-          var value = context.getBean(field.getType());
+          Object value = resolveValue(context, field);
           field.set(bean, value);
 
           log.trace(
@@ -38,5 +42,23 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
       log.error("Exception during bean configuration: {}", e.getMessage());
       throw new BeanConfigurationException("Exception during bean configuration", e);
     }
+  }
+
+  private Object resolveValue(ApplicationContext context, Field field) {
+    Class<?> fieldType = field.getType();
+
+    if (List.class.isAssignableFrom(fieldType)) {
+      return handleParameterizedListType(field, context);
+    } else {
+      return context.getBean(fieldType);
+    }
+  }
+
+  private List<?> handleParameterizedListType(Field field, ApplicationContext context) {
+    if (field.getGenericType() instanceof ParameterizedType parameterizedType) {
+      var actualTypeArgument = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+      return context.getAllBeans(actualTypeArgument).values().stream().toList();
+    }
+    return Collections.emptyList();
   }
 }

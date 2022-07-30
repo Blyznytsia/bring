@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +13,9 @@ import org.blyznytsia.exception.NoUniqueBeanException;
 import org.blyznytsia.factory.ObjectFactory;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.scanner.BeanScanner;
+import org.blyznytsia.scanner.ComponentAnnotationScanner;
+import org.blyznytsia.scanner.ConfigurationAnnotationScanner;
 import org.blyznytsia.util.DependencyGraph;
-import org.reflections.Reflections;
 
 /**
  * Implementation of ApplicationContext. The main responsibilities of this class is to delegate
@@ -41,10 +43,8 @@ import org.reflections.Reflections;
 @Slf4j
 public class AnnotationApplicationContext implements ApplicationContext {
   private final Map<BeanDefinition, Object> cache = new HashMap<>();
-  private final List<BeanScanner> scanners;
 
   public AnnotationApplicationContext(String... packages) {
-    this.scanners = initScanners();
     var beanDefinitions = scan(packages);
     initializeContext(beanDefinitions);
   }
@@ -95,21 +95,22 @@ public class AnnotationApplicationContext implements ApplicationContext {
 
   @SneakyThrows
   private List<BeanDefinition> scan(String[] packages) {
-    return scanners.stream().flatMap(scanner -> scanner.scan(packages).stream()).toList();
-  }
+    BeanScanner configScanner = new ConfigurationAnnotationScanner(packages);
+    List<BeanDefinition> configDefinitions = configScanner.scan();
 
-  @SneakyThrows
-  private List<BeanScanner> initScanners() {
-    var reflections = new Reflections("org.blyznytsia.scanner");
-    var scannerClasses = reflections.getSubTypesOf(BeanScanner.class);
+    var configDefinitionMap =
+        configDefinitions.stream()
+            .collect(Collectors.toMap(BeanDefinition::getType, Function.identity()));
 
-    List<BeanScanner> scanners = new ArrayList<>();
-    for (var scannerClass : scannerClasses) {
-      BeanScanner scanner = scannerClass.getConstructor().newInstance();
-      scanners.add(scanner);
-    }
+    BeanScanner componentAnnotationScanner =
+        new ComponentAnnotationScanner(configDefinitionMap, packages);
+    List<BeanDefinition> componentDefinitions = componentAnnotationScanner.scan();
 
-    return scanners;
+    List<BeanDefinition> definitions = new ArrayList<>();
+    definitions.addAll(configDefinitions);
+    definitions.addAll(componentDefinitions);
+
+    return definitions;
   }
 
   public boolean contains(BeanDefinition definition) {

@@ -19,6 +19,14 @@ import org.reflections.Reflections;
 @Slf4j
 public class ConfigurationAnnotationScanner implements BeanScanner {
 
+  private final Reflections reflections;
+  private final String[] packages;
+
+  public ConfigurationAnnotationScanner(String... packages) {
+    this.reflections = new Reflections((Object[]) packages);
+    this.packages = packages;
+  }
+
   /**
    * Scans configuration classes annotated with {@link org.blyznytsia.annotation.Component},
    * identifies methods annotated with {@link Bean} within those classes and builds {@link
@@ -28,14 +36,13 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
    * @return a list of created {@link BeanDefinition}
    */
   @Override
-  public List<BeanDefinition> scan(String... packages) {
+  public List<BeanDefinition> scan() {
     if (packages.length == 0) {
       throw new IllegalArgumentException("Package cannot be blank");
     }
 
     log.info("Scanning '{}' package for classes annotated wth @Configuration", packages);
-    var configurationsClasses =
-        new Reflections((Object[]) packages).getTypesAnnotatedWith(Configuration.class);
+    var configurationsClasses = reflections.getTypesAnnotatedWith(Configuration.class);
     log.debug("Found configurations classes: {}", configurationsClasses);
 
     List<BeanDefinition> definitions =
@@ -57,7 +64,6 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
   }
 
   private BeanDefinition createDefinition(Class<?> configClass, Method method) {
-    List<BeanDefinition> dependencies = findDependencies(configClass, method);
     return BeanDefinition.builder()
         .configClass(configClass)
         .configClassDependency(true)
@@ -65,7 +71,7 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
         .name(resolveBeanNameFromMethod(method))
         .type(method.getReturnType())
         .initMethod(method.getAnnotation(Bean.class).initMethod())
-        .requiredDependencies(dependencies)
+        .requiredDependencies(findDependencies(configClass, method))
         .fieldDependencies(Collections.emptyList())
         .build();
   }
@@ -98,10 +104,5 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
     Bean annotation = beanMethod.getAnnotation(Bean.class);
     String beanName = annotation.value();
     return beanName.isEmpty() ? beanMethod.getName() : beanName;
-  }
-
-  private String resolveBeanName(Class<?> type) {
-    String className = type.getSimpleName();
-    return Character.toLowerCase(className.charAt(0)) + className.substring(1);
   }
 }

@@ -1,8 +1,8 @@
 package org.blyznytsia.bpp;
 
-import org.blyznytsia.context.AnnotationApplicationContext;
+import org.blyznytsia.context.ApplicationContext;
 
 public interface BeanPostProcessor {
 
-  void configure(Object bean, AnnotationApplicationContext cache);
+  void configure(Object bean, ApplicationContext context);
 }

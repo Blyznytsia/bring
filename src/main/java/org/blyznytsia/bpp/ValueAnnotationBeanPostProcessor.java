@@ -3,7 +3,7 @@ package org.blyznytsia.bpp;
 import java.io.IOException;
 import java.util.Properties;
 import org.blyznytsia.annotation.Value;
-import org.blyznytsia.context.AnnotationApplicationContext;
+import org.blyznytsia.context.ApplicationContext;
 import org.blyznytsia.util.TypeResolver;
 
 public class ValueAnnotationBeanPostProcessor implements BeanPostProcessor {
@@ -15,7 +15,7 @@ public class ValueAnnotationBeanPostProcessor implements BeanPostProcessor {
   }
 
   @Override
-  public void configure(Object bean, AnnotationApplicationContext cache) {
+  public void configure(Object bean, ApplicationContext context) {
     for (var field : bean.getClass().getDeclaredFields()) {
 
       if (field.isAnnotationPresent(Value.class)) {

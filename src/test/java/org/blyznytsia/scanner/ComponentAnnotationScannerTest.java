@@ -3,6 +3,7 @@ package org.blyznytsia.scanner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.HashMap;
 import java.util.List;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.scanner.data.component_scanner.TestService1;
@@ -18,11 +19,12 @@ class ComponentAnnotationScannerTest {
   static final String[] SERVICE2_DEPENDENCY_NAMES = {
     TestService1.class.getName(), TestService3.class.getName()
   };
-  ComponentAnnotationScanner scanner = new ComponentAnnotationScanner();
+  ComponentAnnotationScanner scanner =
+      new ComponentAnnotationScanner(new HashMap<>(), PACKAGE_NAME);
 
   @Test
   void shouldReturnValidBeanDefinitions() {
-    var beanDefinitions = scanner.scan(PACKAGE_NAME);
+    var beanDefinitions = scanner.scan();
 
     assertThat(beanDefinitions)
         .map(BeanDefinition::getName)
@@ -38,7 +40,7 @@ class ComponentAnnotationScannerTest {
   @Test
   void shouldThrowNPEIfPackageIsNull() {
     assertThatExceptionOfType(NullPointerException.class)
-        .isThrownBy(() -> scanner.scan(null))
+        .isThrownBy(() -> scanner.scan())
         .withMessage("packageName is marked non-null but is null");
   }
 

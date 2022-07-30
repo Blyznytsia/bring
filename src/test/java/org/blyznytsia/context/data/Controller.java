@@ -1,8 +1,11 @@
 package org.blyznytsia.context.data;
 
+import java.util.List;
 import org.blyznytsia.annotation.Autowired;
 import org.blyznytsia.annotation.Component;
+import org.blyznytsia.annotation.Qualifier;
 import org.blyznytsia.annotation.Value;
+import org.blyznytsia.context.data.TestConfig.Entity;
 
 @Component
 public class Controller {
@@ -12,13 +15,15 @@ public class Controller {
   @Value("db.url")
   private String dbUrl;
 
-  //  @Autowired private Entity entity;
+  @Autowired private Entity entity;
+  @Autowired private List<Convertor> convertors;
 
-  private ServiceA serviceA;
-  private ServiceB serviceB;
+  private final IServiceA serviceA;
+
+  private final ServiceB serviceB;
 
   @Autowired
-  public Controller(ServiceA serviceA, ServiceB serviceB) {
+  public Controller(@Qualifier("impl1") IServiceA serviceA, ServiceB serviceB) {
     this.serviceA = serviceA;
     this.serviceB = serviceB;
   }
