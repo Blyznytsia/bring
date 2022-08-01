@@ -5,7 +5,6 @@ import org.blyznytsia.context.AnnotationApplicationContext;
 public class Main {
 
   public static void main(String[] args) {
-    AnnotationApplicationContext annotationApplicationContext =
-        new AnnotationApplicationContext("org.blyznytsia");
+    var ctx = new AnnotationApplicationContext("org.blyznytsia");
   }
 }

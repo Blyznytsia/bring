@@ -41,7 +41,11 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
 
     for (var configClass : configurationsClasses) {
       var configDefinition =
-          BeanDefinition.builder().name(resolveBeanName(configClass)).type(configClass).build();
+          BeanDefinition.builder()
+              .name(resolveBeanName(configClass))
+              .type(configClass)
+              .dependsOnBeans(List.of())
+              .build();
       var declaredBeansDefinitions = findDefinitionsForDeclaredBeans(configClass);
 
       allDefinitions.add(configDefinition);
