@@ -3,10 +3,12 @@ package org.blyznytsia.factory;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.context.ApplicationContext;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.processor.BeanPostProcessor;
 
+@Slf4j
 public class ObjectFactory {
 
   private final ApplicationContext context;
@@ -45,6 +47,7 @@ public class ObjectFactory {
   @SneakyThrows
   private void createBean(BeanDefinition beanDefinition) {
     var bean = beanDefinition.getType().getDeclaredConstructor().newInstance();
+    log.debug("Creating of bean {}", beanDefinition.getName());
     context.getContainer().put(beanDefinition, configure(bean, beanDefinition));
   }
 

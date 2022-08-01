@@ -6,8 +6,6 @@ import org.blyznytsia.annotation.Component;
 
 @Component
 @Data
-public class Bean1 {
-
-  @Autowired private Bean2 bean2;
-  @Autowired private Bean6 bean6;
+public class Bean6 {
+  @Autowired Bean3 bean3;
 }
