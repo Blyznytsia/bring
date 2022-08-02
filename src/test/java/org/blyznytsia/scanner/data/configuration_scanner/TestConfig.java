@@ -6,28 +6,26 @@ import org.blyznytsia.annotation.Configuration;
 
 @Configuration
 public class TestConfig {
-    @Bean(value = "beanForEntity", initMethod = "init")
-    public Entity entity(Dependency dependency, AnotherDependency anotherDependency) {
-        return new Entity();
-    }
+  @Bean(value = "beanForEntity", initMethod = "init")
+  public Entity entity(Dependency dependency, AnotherDependency anotherDependency) {
+    return new Entity();
+  }
 
-    @Bean
-    public String dependency2() {
-        return "dependency2";
-    }
+  @Bean
+  public String dependency2() {
+    return "dependency2";
+  }
 
-    public static class Entity {
+  public static class Entity {
 
-        public void init() {
-            // no op
-        }
+    public void init() {
+      // no op
     }
+  }
 
-    @Component
-    public static class Dependency {
-    }
+  @Component
+  public static class Dependency {}
 
-    @Component
-    public static class AnotherDependency {
-    }
+  @Component
+  public static class AnotherDependency {}
 }

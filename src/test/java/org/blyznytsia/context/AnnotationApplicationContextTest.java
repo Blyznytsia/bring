@@ -1,5 +1,7 @@
 package org.blyznytsia.context;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.context.data.Bean1;
 import org.blyznytsia.context.data.Bean2;
@@ -16,19 +18,31 @@ class AnnotationApplicationContextTest {
 
   /*
    *      Bean1          Bean4
-   *       / \            /
-   *      /  Bean6       /
-   *    Bean2 <---------/
+   *       / \            / \
+   *      /  Bean6       /   \
+   *    Bean2 <---------/   Bean5
    *     /
    *  Bean3
    */
   @Test
-  void getBean_givenValidClasses_shouldPrintBeans() {
+  void getBean_givenValidClassStructure_shouldPrintBeans() {
     System.out.println(ctx.getBean(Bean1.class));
     System.out.println(ctx.getBean(Bean2.class));
     System.out.println(ctx.getBean(Bean3.class));
     System.out.println(ctx.getBean(Bean4.class));
     System.out.println(ctx.getBean(Bean5.class));
     System.out.println(ctx.getBean(Bean6.class));
+  }
+
+  @Test
+  void getBean_givenValidType_shouldReturnBean() {
+    var bean1 = ctx.getBean(Bean1.class);
+    assertThat(bean1).isInstanceOf(Bean1.class);
+  }
+
+  @Test
+  void getBean_givenValidNameAndType_shouldReturnBean() {
+    var bean5 = ctx.getBean("bean5", Bean5.class);
+    assertThat(bean5).isInstanceOf(Bean5.class);
   }
 }

@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
 import org.blyznytsia.model.BeanDefinition;
-import org.blyznytsia.scanner.data.component_scanner.TestService1;
-import org.blyznytsia.scanner.data.component_scanner.TestService3;
 import org.junit.jupiter.api.Test;
 
 class ComponentAnnotationScannerTest {
@@ -15,10 +13,8 @@ class ComponentAnnotationScannerTest {
   private static final String SERVICE1_NAME = "anotherNameService";
   private static final String SERVICE2_NAME = "testService2";
   private static final String SERVICE3_NAME = "testService3";
-  private static final String SERVICE1_DEPENDENCY_NAME = TestService3.class.getName();
-  private static final String[] SERVICE2_DEPENDENCY_NAMES = {
-    TestService1.class.getName(), TestService3.class.getName()
-  };
+  private static final String SERVICE1_DEPENDENCY_NAME = "testService3";
+  private static final String[] SERVICE2_DEPENDENCY_NAMES = {"anotherNameService", "testService3"};
   private final ComponentAnnotationScanner scanner = new ComponentAnnotationScanner();
 
   @Test
