@@ -10,9 +10,11 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.exception.NoSuchBeanException;
 import org.blyznytsia.exception.NoUniqueBeanException;
-import org.blyznytsia.factory.ObjectFactory;
+import org.blyznytsia.factory.BeanObjectFactory;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.scanner.BeanScanner;
+import org.blyznytsia.validator.BeanValidator;
+import org.blyznytsia.validator.DependencyValidator;
 import org.reflections.Reflections;
 
 /**
@@ -48,7 +50,13 @@ public class AnnotationApplicationContext implements ApplicationContext {
   public AnnotationApplicationContext(String packageName) {
     this.reflections = new Reflections(packageName);
     var beanDefinitions = initAndRunScanners(packageName);
-    new ObjectFactory(this).initiateContext(beanDefinitions);
+    validate(beanDefinitions);
+    new BeanObjectFactory(this).initiateContext(beanDefinitions);
+  }
+
+  private void validate(List<BeanDefinition> beanDefinitions) {
+    BeanValidator beanValidator = new DependencyValidator(beanDefinitions);
+    beanValidator.validate();
   }
 
   @Override

@@ -16,17 +16,10 @@ public class DependencyValidator implements BeanValidator {
   /** Map of beans. Key is a bean, and value is a list of beans in which the key bean depends. */
   private final Map<String, List<String>> beans;
 
-  private DependencyValidator(Map<String, List<String>> beans) {
-    this.beans = beans;
-  }
-
-  public static DependencyValidator buildDependencyGraph(List<BeanDefinition> beanDefinitions) {
-
-    Map<String, List<String>> beanDeps =
+  public DependencyValidator(List<BeanDefinition> beanDefinitions) {
+    this.beans =
         beanDefinitions.stream()
             .collect(Collectors.toMap(BeanDefinition::getName, BeanDefinition::getDependsOnBeans));
-
-    return new DependencyValidator(beanDeps);
   }
 
   /**

@@ -89,7 +89,7 @@ public class ComponentAnnotationScanner implements BeanScanner {
   private List<String> getAutowiredFields(Class<?> targetClass) {
     return Arrays.stream(targetClass.getDeclaredFields())
         .filter(el -> el.isAnnotationPresent(AUTOWIRED_ANNOTATION))
-        .map(el -> el.getType().getName())
+        .map(el -> getBeanDefinitionName(el.getType()))
         .toList();
   }
 }

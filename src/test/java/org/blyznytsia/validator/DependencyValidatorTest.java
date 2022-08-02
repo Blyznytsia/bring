@@ -50,8 +50,7 @@ class DependencyValidatorTest {
 
     List<BeanDefinition> beanDefinitions = List.of(bean1, bean2, bean4, bean5);
 
-    DependencyValidator dependencyValidator =
-        DependencyValidator.buildDependencyGraph(beanDefinitions);
+    DependencyValidator dependencyValidator = new DependencyValidator(beanDefinitions);
 
     assertThatThrownBy(dependencyValidator::validate)
         .isInstanceOf(CircularDependencyException.class)
@@ -86,8 +85,7 @@ class DependencyValidatorTest {
 
     List<BeanDefinition> beanDefinitions = List.of(bean1, bean2, bean3);
 
-    DependencyValidator dependencyValidator =
-        DependencyValidator.buildDependencyGraph(beanDefinitions);
+    DependencyValidator dependencyValidator = new DependencyValidator(beanDefinitions);
 
     assertThatThrownBy(dependencyValidator::validate)
         .isInstanceOf(CircularDependencyException.class)
@@ -120,8 +118,7 @@ class DependencyValidatorTest {
 
     List<BeanDefinition> beanDefinitions = List.of(beanOne, beanTwo, beanThree);
 
-    DependencyValidator dependencyValidator =
-        DependencyValidator.buildDependencyGraph(beanDefinitions);
+    DependencyValidator dependencyValidator = new DependencyValidator(beanDefinitions);
 
     dependencyValidator.validate();
   }

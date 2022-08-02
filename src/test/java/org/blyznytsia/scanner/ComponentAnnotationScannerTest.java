@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
+import org.blyznytsia.annotation.Component;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.scanner.data.component_scanner.TestService1;
 import org.blyznytsia.scanner.data.component_scanner.TestService3;
@@ -15,9 +16,9 @@ class ComponentAnnotationScannerTest {
   private static final String SERVICE1_NAME = "anotherNameService";
   private static final String SERVICE2_NAME = "testService2";
   private static final String SERVICE3_NAME = "testService3";
-  private static final String SERVICE1_DEPENDENCY_NAME = TestService3.class.getName();
+  private static final String SERVICE1_DEPENDENCY_NAME = getBeanDefinitionName(TestService3.class);
   private static final String[] SERVICE2_DEPENDENCY_NAMES = {
-    TestService1.class.getName(), TestService3.class.getName()
+    getBeanDefinitionName(TestService1.class), getBeanDefinitionName(TestService3.class)
   };
   private final ComponentAnnotationScanner scanner = new ComponentAnnotationScanner();
 
@@ -47,5 +48,14 @@ class ComponentAnnotationScannerTest {
 
   private BeanDefinition getBeanDefinitionByName(List<BeanDefinition> list, String name) {
     return list.stream().filter(el -> el.getName().equals(name)).findFirst().orElseThrow();
+  }
+
+  private static String getBeanDefinitionName(Class<?> targetClass) {
+    var annotationValue = targetClass.getAnnotation(Component.class).value();
+    var simpleName =
+        targetClass.getSimpleName().substring(0, 1).toLowerCase()
+            + targetClass.getSimpleName().substring(1);
+
+    return annotationValue.isBlank() ? simpleName : annotationValue;
   }
 }
