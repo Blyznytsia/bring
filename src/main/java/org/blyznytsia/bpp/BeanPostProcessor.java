@@ -4,7 +4,7 @@ import org.blyznytsia.context.ApplicationContext;
 
 /**
  * A hook that allows configuring beans instantiated by {@link
- * org.blyznytsia.injector.BeanInjector}.
+ * org.blyznytsia.processor.BeanFactoryProcessor}.
  */
 public interface BeanPostProcessor {
 
@@ -15,5 +15,7 @@ public interface BeanPostProcessor {
    * @param bean bean to be configured
    * @param context application context to access the beans
    */
-  void configure(Object bean, ApplicationContext context);
+  default Object configure(Object bean, ApplicationContext context) {
+    return bean;
+  }
 }

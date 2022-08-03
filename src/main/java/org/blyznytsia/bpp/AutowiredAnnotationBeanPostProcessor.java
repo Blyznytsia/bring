@@ -19,7 +19,7 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
    * @param context application context to fetch beans from for injections
    */
   @Override
-  public void configure(Object bean, ApplicationContext context) {
+  public Object configure(Object bean, ApplicationContext context) {
     log.debug("Configuring bean of {} type", bean.getClass());
     try {
       for (var field : bean.getClass().getDeclaredFields()) {
@@ -28,15 +28,17 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
           var value = context.getBean(field.getType());
           field.set(bean, value);
 
-          log.trace(
+          log.debug(
               "Successfully initialized {} field with the value of {} type",
               field.getName(),
-              value.getClass().getSimpleName());
+              field.getType().getSimpleName());
         }
       }
     } catch (Exception e) {
       log.error("Exception during bean configuration: {}", e.getMessage());
       throw new BeanConfigurationException("Exception during bean configuration", e);
     }
+
+    return bean;
   }
 }
