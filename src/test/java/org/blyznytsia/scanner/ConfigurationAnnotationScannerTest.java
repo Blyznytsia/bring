@@ -4,12 +4,13 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.blyznytsia.model.Scope.SINGLETON;
-import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.*;
+import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.AnotherDependency;
+import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.Dependency;
+import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.Entity;
 
 import java.util.List;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.scanner.data.configuration_scanner.TestConfig;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,16 +24,20 @@ class ConfigurationAnnotationScannerTest {
 
   @DisplayName(
       """
-                Scanner should find all @Configuration classes and create bean
-                definitions from methods annotated with @Bean and configuration itself
-            """)
+                        Scanner should find all @Configuration classes and create bean
+                        definitions from methods annotated with @Bean and configuration itself
+                    """)
   @Test
-  @Disabled("Conflict with bean processing in current implementation")
   void shouldScanAndBuildDefinitionsForBeansAndConfiguration() throws NoSuchMethodException {
     var actualDefinitions = scanner.scan(TEST_PACKAGE);
 
     var configDefinition =
-        BeanDefinition.builder().name("testConfig").type(TestConfig.class).scope(SINGLETON).build();
+        BeanDefinition.builder()
+            .name("testConfig")
+            .type(TestConfig.class)
+            .scope(SINGLETON)
+            .dependsOnBeans(emptyList())
+            .build();
 
     var beanDefinition1 =
         BeanDefinition.builder()
@@ -42,7 +47,7 @@ class ConfigurationAnnotationScannerTest {
             .beanMethod(
                 TestConfig.class.getMethod("entity", Dependency.class, AnotherDependency.class))
             .configClass(TestConfig.class)
-            .dependsOnBeans(List.of(Dependency.class.getName(), AnotherDependency.class.getName()))
+            .dependsOnBeans(List.of("dependency", "anotherDependency"))
             .scope(SINGLETON)
             .initMethod("init")
             .build();

@@ -20,9 +20,11 @@ public class ObjectFactory {
   }
 
   public void initiateContext(List<BeanDefinition> beanDefinitions) {
+    log.info("Initializing context for {} beanDefinitions", beanDefinitions.size());
     var list = new ArrayList<>(beanDefinitions);
     processEmptyFirst(list);
     processOthers(list);
+    log.info("Context was initialized with {} beans", beanDefinitions.size());
   }
 
   private void processEmptyFirst(List<BeanDefinition> list) {
@@ -33,12 +35,10 @@ public class ObjectFactory {
 
   private void processOthers(List<BeanDefinition> list) {
     while (!list.isEmpty()) {
-      // todo: we can improve performance by changing container.key
-      //  or beanDefinition.getDependsOnBeans value
-      var containerValues =
-          context.getContainer().values().stream().map(el -> el.getClass().getName()).toList();
       var toBeCreated =
-          list.stream().filter(el -> containerValues.containsAll(el.getDependsOnBeans())).toList();
+          list.stream()
+              .filter(el -> context.getContainer().keySet().containsAll(el.getDependsOnBeans()))
+              .toList();
       list.removeAll(toBeCreated);
       toBeCreated.forEach(this::createBean);
     }
@@ -48,7 +48,7 @@ public class ObjectFactory {
   private void createBean(BeanDefinition beanDefinition) {
     var bean = beanDefinition.getType().getDeclaredConstructor().newInstance();
     log.debug("Creating of bean {}", beanDefinition.getName());
-    context.getContainer().put(beanDefinition, configure(bean, beanDefinition));
+    context.getContainer().put(beanDefinition.getName(), configure(bean, beanDefinition));
   }
 
   @SneakyThrows

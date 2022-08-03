@@ -7,13 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Autowired;
 import org.blyznytsia.annotation.Component;
 import org.blyznytsia.model.BeanDefinition;
+import org.blyznytsia.util.Helper;
 import org.reflections.Reflections;
 
-/**
- * Scanner for the @{@link Component} annotation.
- *
- * @author Oleksandr Vashchenko
- */
+/** Scanner for the @{@link Component} annotation. */
 @Slf4j
 public class ComponentAnnotationScanner implements BeanScanner {
 
@@ -61,7 +58,7 @@ public class ComponentAnnotationScanner implements BeanScanner {
   private BeanDefinition createBeanDefinition(Class<?> targetClass) {
     return BeanDefinition.builder()
         .type(targetClass)
-        .name(getBeanDefinitionName(targetClass))
+        .name(resolveBeanName(targetClass))
         .dependsOnBeans(getAutowiredFields(targetClass))
         .build();
   }
@@ -72,13 +69,9 @@ public class ComponentAnnotationScanner implements BeanScanner {
    * @return @{@link Component#value()} or {@link Class#getSimpleName()} starting with lowercase
    *     letter
    */
-  private String getBeanDefinitionName(Class<?> targetClass) {
+  private String resolveBeanName(Class<?> targetClass) {
     var annotationValue = targetClass.getAnnotation(COMPONENT_ANNOTATION).value();
-    var simpleName =
-        targetClass.getSimpleName().substring(0, 1).toLowerCase()
-            + targetClass.getSimpleName().substring(1);
-
-    return annotationValue.isBlank() ? simpleName : annotationValue;
+    return annotationValue.isBlank() ? Helper.resolveBeanName(targetClass) : annotationValue;
   }
 
   /**
@@ -89,7 +82,7 @@ public class ComponentAnnotationScanner implements BeanScanner {
   private List<String> getAutowiredFields(Class<?> targetClass) {
     return Arrays.stream(targetClass.getDeclaredFields())
         .filter(el -> el.isAnnotationPresent(AUTOWIRED_ANNOTATION))
-        .map(el -> el.getType().getName())
+        .map(el -> resolveBeanName(el.getType()))
         .toList();
   }
 }

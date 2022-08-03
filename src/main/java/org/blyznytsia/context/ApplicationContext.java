@@ -3,7 +3,6 @@ package org.blyznytsia.context;
 import java.util.Map;
 import org.blyznytsia.exception.NoSuchBeanException;
 import org.blyznytsia.exception.NoUniqueBeanException;
-import org.blyznytsia.model.BeanDefinition;
 import org.reflections.Reflections;
 
 /**
@@ -44,9 +43,19 @@ public interface ApplicationContext {
    * @return a {@link Map} of all beans with the provided type. If no beans are found returns empty
    *     {@link Map}
    */
-  <T> Map<BeanDefinition, T> getAllBeans(Class<T> beanType);
+  <T> Map<String, T> getAllBeans(Class<T> beanType);
 
+  /**
+   * Getter for {@link Reflections}
+   *
+   * @return {@link Reflections}
+   */
   Reflections getReflections();
 
-  Map<BeanDefinition, Object> getContainer();
+  /**
+   * Getter for container
+   *
+   * @return {@link Map} container of beans
+   */
+  Map<String, Object> getContainer();
 }

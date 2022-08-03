@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Bean;
 import org.blyznytsia.annotation.Configuration;
 import org.blyznytsia.model.BeanDefinition;
+import org.blyznytsia.util.Helper;
 import org.reflections.Reflections;
 
 /**
@@ -42,7 +43,7 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
     for (var configClass : configurationsClasses) {
       var configDefinition =
           BeanDefinition.builder()
-              .name(resolveBeanName(configClass))
+              .name(Helper.resolveBeanName(configClass))
               .type(configClass)
               .dependsOnBeans(List.of())
               .build();
@@ -79,17 +80,12 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
   // helper class.
   // TODO: revisit type for List<String> dependencies ... should be map
   private List<String> findDependencies(Method method) {
-    return Arrays.stream(method.getParameterTypes()).map(Class::getName).toList();
+    return Arrays.stream(method.getParameterTypes()).map(Helper::resolveBeanName).toList();
   }
 
   private String resolveBeanNameFromMethod(Method beanMethod) {
     Bean annotation = beanMethod.getAnnotation(Bean.class);
     String beanName = annotation.value();
     return beanName.isEmpty() ? beanMethod.getName() : beanName;
-  }
-
-  private String resolveBeanName(Class<?> type) {
-    String className = type.getSimpleName();
-    return Character.toLowerCase(className.charAt(0)) + className.substring(1);
   }
 }
