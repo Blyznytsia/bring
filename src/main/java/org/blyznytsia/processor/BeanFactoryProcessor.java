@@ -1,11 +1,16 @@
 package org.blyznytsia.processor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.bpp.BeanPostProcessor;
 import org.blyznytsia.context.ApplicationContext;
+import org.blyznytsia.exception.BeanConfigurationException;
+import org.blyznytsia.exception.NoDefaultConstructorException;
 import org.blyznytsia.model.BeanDefinition;
 
 /**
@@ -44,43 +49,44 @@ public class BeanFactoryProcessor {
    *
    * @param beanDefinitions bean definitions from scanners
    */
-  public void initiateContext(List<BeanDefinition> beanDefinitions) {
+  public void initiateContext(Set<BeanDefinition> beanDefinitions) {
     log.info("Initializing context for {} beanDefinitions", beanDefinitions.size());
-    var list = new ArrayList<>(beanDefinitions);
-    processEmptyFirst(list);
-    processOthers(list);
+    var set = new HashSet<>(beanDefinitions);
+    processEmptyFirst(set);
+    processOthers(set);
     log.info("Context was successfully initialized with {} beans", beanDefinitions.size());
   }
 
   /**
    * Process bean definitions with no dependencies
    *
-   * @param list {@link List<BeanDefinition>}
+   * @param set {@link Set<BeanDefinition>}
    */
-  private void processEmptyFirst(List<BeanDefinition> list) {
+  private void processEmptyFirst(Set<BeanDefinition> set) {
     log.debug("Processing beanDefinitions with no dependencies");
-    var toBeCreated = list.stream().filter(el -> el.getDependsOnBeans().isEmpty()).toList();
+    var toBeCreated =
+        set.stream().filter(el -> el.getDependsOnBeans().isEmpty()).collect(Collectors.toSet());
     log.debug("Found {} beanDefinitions with no dependencies", toBeCreated.size());
 
-    list.removeAll(toBeCreated);
+    set.removeAll(toBeCreated);
     toBeCreated.forEach(this::createBean);
   }
 
   /**
    * Process bean definitions with dependencies
    *
-   * @param list {@link List<BeanDefinition>}
+   * @param set {@link Set<BeanDefinition>}
    */
-  private void processOthers(List<BeanDefinition> list) {
-    log.debug("Processing {} beanDefinitions with dependencies", list.size());
-    while (!list.isEmpty()) {
+  private void processOthers(Set<BeanDefinition> set) {
+    log.debug("Processing {} beanDefinitions with dependencies", set.size());
+    while (!set.isEmpty()) {
       var toBeCreated =
-          list.stream()
+          set.stream()
               .filter(el -> context.getContainer().keySet().containsAll(el.getDependsOnBeans()))
-              .toList();
+              .collect(Collectors.toSet());
       log.debug("Found {} beanDefinitions with dependencies", toBeCreated.size());
 
-      list.removeAll(toBeCreated);
+      set.removeAll(toBeCreated);
       toBeCreated.forEach(this::createBean);
     }
   }
@@ -93,7 +99,17 @@ public class BeanFactoryProcessor {
   @SneakyThrows
   private void createBean(BeanDefinition beanDefinition) {
     log.debug("Creating of bean {}", beanDefinition.getName());
-    var bean = beanDefinition.getType().getDeclaredConstructor().newInstance();
+    Object bean;
+
+    try {
+      bean = beanDefinition.getType().getDeclaredConstructor().newInstance();
+    } catch (Exception e) {
+      var msg = String.format("No default constructor in %s", beanDefinition.getType());
+      log.error(msg);
+      throw new BeanConfigurationException(
+          "Exception during bean creation", new NoDefaultConstructorException(msg, e));
+    }
+
     context.getContainer().put(beanDefinition.getName(), configure(bean, beanDefinition));
   }
 

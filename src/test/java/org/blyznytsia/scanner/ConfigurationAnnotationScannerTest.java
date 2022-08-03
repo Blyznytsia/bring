@@ -1,6 +1,6 @@
 package org.blyznytsia.scanner;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.blyznytsia.model.Scope.SINGLETON;
@@ -9,6 +9,7 @@ import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.Depen
 import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.Entity;
 
 import java.util.List;
+import java.util.Set;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.scanner.data.configuration_scanner.TestConfig;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +37,7 @@ class ConfigurationAnnotationScannerTest {
             .name("testConfig")
             .type(TestConfig.class)
             .scope(SINGLETON)
-            .dependsOnBeans(emptyList())
+            .dependsOnBeans(emptySet())
             .build();
 
     var beanDefinition1 =
@@ -47,7 +48,7 @@ class ConfigurationAnnotationScannerTest {
             .beanMethod(
                 TestConfig.class.getMethod("entity", Dependency.class, AnotherDependency.class))
             .configClass(TestConfig.class)
-            .dependsOnBeans(List.of("dependency", "anotherDependency"))
+            .dependsOnBeans(Set.of("dependency", "anotherDependency"))
             .scope(SINGLETON)
             .initMethod("init")
             .build();
@@ -59,7 +60,7 @@ class ConfigurationAnnotationScannerTest {
             .configClassDependency(true)
             .beanMethod(TestConfig.class.getMethod("dependency2"))
             .configClass(TestConfig.class)
-            .dependsOnBeans(emptyList())
+            .dependsOnBeans(emptySet())
             .initMethod(DEFAULT_INIT_METHOD_NAME)
             .scope(SINGLETON)
             .build();

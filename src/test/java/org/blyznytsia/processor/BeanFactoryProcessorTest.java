@@ -1,14 +1,14 @@
 package org.blyznytsia.processor;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.blyznytsia.context.AnnotationApplicationContext;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.processor.data.EmptyBean;
@@ -30,11 +30,11 @@ class BeanFactoryProcessorTest {
   void initiateContext_givenValidList_shouldInitializeContext() {
     // given:
     var beanDefinitions =
-        List.of(
+        Set.of(
             BeanDefinition.builder()
                 .name("emptyBean")
                 .type(EmptyBean.class)
-                .dependsOnBeans(emptyList())
+                .dependsOnBeans(emptySet())
                 .build());
 
     when(context.getContainer()).thenReturn(container);

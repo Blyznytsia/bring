@@ -1,7 +1,8 @@
 package org.blyznytsia.scanner;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Autowired;
@@ -29,14 +30,14 @@ public class ComponentAnnotationScanner implements BeanScanner {
    * 2. Find all classes annotated with @{@link Component} annotation
    * 3. Create {@link BeanDefinition} based on these classes
    * 4. If the class has fields annotated with @{@link Autowired} annotation, then add dependencies to {@link BeanDefinition#dependsOnBeans}
-   * 5. Return {@link java.util.List} of {@link BeanDefinition}
+   * 5. Return {@link java.util.Set} of {@link BeanDefinition}
    * </pre>
    *
    * @param packageName object of type {@link String} that represents packages to scan
-   * @return {@link java.util.List} of {@link BeanDefinition}
+   * @return {@link java.util.Set} of {@link BeanDefinition}
    */
   @Override
-  public List<BeanDefinition> scan(@NonNull String packageName) {
+  public Set<BeanDefinition> scan(@NonNull String packageName) {
     log.info("Scanning '{}' package for classes annotated wth @Component", packageName);
 
     var reflections = new Reflections(packageName);
@@ -44,7 +45,8 @@ public class ComponentAnnotationScanner implements BeanScanner {
 
     log.debug("Found @Component classes: {}", targetClasses);
 
-    var beanDefinitions = targetClasses.stream().map(this::createBeanDefinition).toList();
+    var beanDefinitions =
+        targetClasses.stream().map(this::createBeanDefinition).collect(Collectors.toSet());
     log.debug("Created BeanDefinition classes: {}", beanDefinitions);
 
     return beanDefinitions;
@@ -77,12 +79,25 @@ public class ComponentAnnotationScanner implements BeanScanner {
   /**
    * @param targetClass object of type {@link Class} that is annotated with @{@link Component}
    *     annotation
-   * @return {@link java.util.List} of {@link String} that represents bean dependencies
+   * @return {@link java.util.Set} of {@link String} that represents bean dependencies
    */
-  private List<String> getAutowiredFields(Class<?> targetClass) {
-    return Arrays.stream(targetClass.getDeclaredFields())
-        .filter(el -> el.isAnnotationPresent(AUTOWIRED_ANNOTATION))
-        .map(el -> resolveBeanName(el.getType()))
-        .toList();
+  private Set<String> getAutowiredFields(Class<?> targetClass) {
+    var set =
+        Arrays.stream(targetClass.getDeclaredFields())
+            .filter(el -> el.isAnnotationPresent(AUTOWIRED_ANNOTATION))
+            .map(el -> resolveBeanName(el.getType()))
+            .collect(Collectors.toSet());
+
+    Helper.checkAndGetAutowiredConstructor(targetClass)
+        .ifPresent(
+            constructor -> {
+              var arguments =
+                  Arrays.stream(constructor.getParameterTypes())
+                      .map(Helper::resolveBeanName)
+                      .collect(Collectors.toSet());
+              set.addAll(arguments);
+            });
+
+    return set;
   }
 }

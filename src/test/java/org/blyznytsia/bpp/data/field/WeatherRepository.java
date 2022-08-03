@@ -1,4 +1,4 @@
-package org.blyznytsia.bpp.data;
+package org.blyznytsia.bpp.data.field;
 
 import org.blyznytsia.annotation.Component;
 

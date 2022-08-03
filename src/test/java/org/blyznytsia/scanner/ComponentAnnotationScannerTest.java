@@ -3,7 +3,7 @@ package org.blyznytsia.scanner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import java.util.List;
+import java.util.Set;
 import org.blyznytsia.model.BeanDefinition;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +41,7 @@ class ComponentAnnotationScannerTest {
         .withMessage("packageName is marked non-null but is null");
   }
 
-  private BeanDefinition getBeanDefinitionByName(List<BeanDefinition> list, String name) {
-    return list.stream().filter(el -> el.getName().equals(name)).findFirst().orElseThrow();
+  private BeanDefinition getBeanDefinitionByName(Set<BeanDefinition> set, String name) {
+    return set.stream().filter(el -> el.getName().equals(name)).findFirst().orElseThrow();
   }
 }

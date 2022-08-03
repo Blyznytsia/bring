@@ -14,7 +14,7 @@ import org.blyznytsia.model.BeanDefinition;
 public class DependencyValidator implements BeanValidator {
 
   /** Map of beans. Key is a bean, and value is a list of beans in which the key bean depends. */
-  private Map<String, List<String>> beans;
+  private Map<String, Set<String>> beans;
 
   public DependencyValidator() {}
 
@@ -24,7 +24,7 @@ public class DependencyValidator implements BeanValidator {
    * @param beanDefinitions list of bean definitions
    * @throws CircularDependencyException if circular dependency happens
    */
-  public void validate(List<BeanDefinition> beanDefinitions) {
+  public void validate(Set<BeanDefinition> beanDefinitions) {
     this.beans =
         beanDefinitions.stream()
             .collect(Collectors.toMap(BeanDefinition::getName, BeanDefinition::getDependsOnBeans));
@@ -93,7 +93,7 @@ public class DependencyValidator implements BeanValidator {
 
     visited.add(bean);
 
-    List<String> dependsOnBeans = beans.get(bean);
+    Set<String> dependsOnBeans = beans.get(bean);
 
     return dependsOnBeans.stream()
         .map(dep -> findCycles(dep, visited, newPath))

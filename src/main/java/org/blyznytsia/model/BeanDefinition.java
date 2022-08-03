@@ -1,7 +1,7 @@
 package org.blyznytsia.model;
 
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -15,7 +15,7 @@ public class BeanDefinition {
   private Class<?> type;
   private String name;
   @Builder.Default private Scope scope = Scope.SINGLETON;
-  private List<String> dependsOnBeans;
+  private Set<String> dependsOnBeans;
   // true for beans declared in @Configuration classes
   private boolean configClassDependency;
 

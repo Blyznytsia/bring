@@ -2,8 +2,7 @@ package org.blyznytsia.validator;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 import org.blyznytsia.exception.CircularDependencyException;
 import org.blyznytsia.model.BeanDefinition;
 import org.junit.jupiter.api.Test;
@@ -23,32 +22,32 @@ class DependencyValidatorTest {
     BeanDefinition bean1 =
         BeanDefinition.builder()
             .name(SERVICE_1)
-            .dependsOnBeans(List.of(SERVICE_2))
+            .dependsOnBeans(Set.of(SERVICE_2))
             .type(Service1.class)
             .build();
 
     BeanDefinition bean2 =
         BeanDefinition.builder()
             .name(SERVICE_2)
-            .dependsOnBeans(List.of(SERVICE_1))
+            .dependsOnBeans(Set.of(SERVICE_1))
             .type(Service2.class)
             .build();
 
     BeanDefinition bean4 =
         BeanDefinition.builder()
             .name(SERVICE_4)
-            .dependsOnBeans(List.of(SERVICE_5))
+            .dependsOnBeans(Set.of(SERVICE_5))
             .type(Service4.class)
             .build();
 
     BeanDefinition bean5 =
         BeanDefinition.builder()
             .name(SERVICE_5)
-            .dependsOnBeans(List.of(SERVICE_4))
+            .dependsOnBeans(Set.of(SERVICE_4))
             .type(Service5.class)
             .build();
 
-    List<BeanDefinition> beanDefinitions = List.of(bean1, bean2, bean4, bean5);
+    Set<BeanDefinition> beanDefinitions = Set.of(bean1, bean2, bean4, bean5);
 
     DependencyValidator dependencyValidator = new DependencyValidator();
 
@@ -65,25 +64,25 @@ class DependencyValidatorTest {
     BeanDefinition bean1 =
         BeanDefinition.builder()
             .name(SERVICE_1)
-            .dependsOnBeans(List.of(SERVICE_2))
+            .dependsOnBeans(Set.of(SERVICE_2))
             .type(Service1.class)
             .build();
 
     BeanDefinition bean2 =
         BeanDefinition.builder()
             .name(SERVICE_2)
-            .dependsOnBeans(List.of(SERVICE_3))
+            .dependsOnBeans(Set.of(SERVICE_3))
             .type(Service2.class)
             .build();
 
     BeanDefinition bean3 =
         BeanDefinition.builder()
             .name(SERVICE_3)
-            .dependsOnBeans(List.of(SERVICE_1))
+            .dependsOnBeans(Set.of(SERVICE_1))
             .type(Service3.class)
             .build();
 
-    List<BeanDefinition> beanDefinitions = List.of(bean1, bean2, bean3);
+    Set<BeanDefinition> beanDefinitions = Set.of(bean1, bean2, bean3);
 
     DependencyValidator dependencyValidator = new DependencyValidator();
 
@@ -98,25 +97,25 @@ class DependencyValidatorTest {
     BeanDefinition beanOne =
         BeanDefinition.builder()
             .name(SERVICE_1)
-            .dependsOnBeans(Arrays.asList(SERVICE_2, SERVICE_3))
+            .dependsOnBeans(Set.of(SERVICE_2, SERVICE_3))
             .type(Service1.class)
             .build();
 
     BeanDefinition beanTwo =
         BeanDefinition.builder()
             .name(SERVICE_2)
-            .dependsOnBeans(List.of(SERVICE_3))
+            .dependsOnBeans(Set.of(SERVICE_3))
             .type(Service2.class)
             .build();
 
     BeanDefinition beanThree =
         BeanDefinition.builder()
             .name(SERVICE_3)
-            .dependsOnBeans(List.of())
+            .dependsOnBeans(Set.of())
             .type(Service3.class)
             .build();
 
-    List<BeanDefinition> beanDefinitions = List.of(beanOne, beanTwo, beanThree);
+    Set<BeanDefinition> beanDefinitions = Set.of(beanOne, beanTwo, beanThree);
 
     DependencyValidator dependencyValidator = new DependencyValidator();
 

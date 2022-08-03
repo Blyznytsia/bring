@@ -1,11 +1,10 @@
 package org.blyznytsia.context;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -48,7 +47,7 @@ public class AnnotationApplicationContext implements ApplicationContext {
   /** Packages scanner */
   private final Reflections reflections;
   /** Beans container */
-  private final Map<String, Object> container = new HashMap<>();
+  private final Map<String, Object> container = new ConcurrentHashMap<>();
 
   /**
    * Creates context
@@ -71,12 +70,12 @@ public class AnnotationApplicationContext implements ApplicationContext {
   }
 
   /**
-   * Validate list of bean definition
+   * Validate set of bean definition
    *
-   * @param beanDefinitions list of bean definition
+   * @param beanDefinitions set of bean definition
    */
   @SneakyThrows
-  private void validate(List<BeanDefinition> beanDefinitions) {
+  private void validate(Set<BeanDefinition> beanDefinitions) {
     Set<Class<? extends BeanValidator>> validatorClasses =
         reflections.getSubTypesOf(BeanValidator.class);
     for (Class<? extends BeanValidator> validatorClass : validatorClasses) {
@@ -138,20 +137,20 @@ public class AnnotationApplicationContext implements ApplicationContext {
    * Initializes and runs all implementations of {@link BeanScanner}
    *
    * @param packageName package to scan
-   * @return {@link List<BeanDefinition>} common list of scanners results
+   * @return {@link Set<BeanDefinition>} common set of scanners results
    */
   @SneakyThrows
-  private List<BeanDefinition> initAndRunScanners(String packageName) {
+  private Set<BeanDefinition> initAndRunScanners(String packageName) {
     log.debug("Searching for scanners in {} package", packageName);
     var scannerClasses = reflections.getSubTypesOf(BeanScanner.class);
     log.debug("Found {} scanners in {} package", scannerClasses.size(), packageName);
 
-    var list = new ArrayList<BeanDefinition>();
+    var set = new HashSet<BeanDefinition>();
     for (var scannerClass : scannerClasses) {
       var beanScanner = scannerClass.getDeclaredConstructor().newInstance();
-      list.addAll(beanScanner.scan(packageName));
+      set.addAll(beanScanner.scan(packageName));
     }
 
-    return list;
+    return set;
   }
 }
