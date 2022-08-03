@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -14,6 +15,7 @@ import org.blyznytsia.exception.NoUniqueBeanException;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.processor.BeanFactoryProcessor;
 import org.blyznytsia.scanner.BeanScanner;
+import org.blyznytsia.validator.BeanValidator;
 import org.reflections.Reflections;
 
 /**
@@ -64,7 +66,23 @@ public class AnnotationApplicationContext implements ApplicationContext {
   public AnnotationApplicationContext(String packageName) {
     this.reflections = new Reflections(packageName);
     var beanDefinitions = initAndRunScanners(packageName);
+    validate(beanDefinitions);
     new BeanFactoryProcessor(this).initiateContext(beanDefinitions);
+  }
+
+  /**
+   * Validate list of bean definition
+   *
+   * @param beanDefinitions list of bean definition
+   */
+  @SneakyThrows
+  private void validate(List<BeanDefinition> beanDefinitions) {
+    Set<Class<? extends BeanValidator>> validatorClasses =
+        reflections.getSubTypesOf(BeanValidator.class);
+    for (Class<? extends BeanValidator> validatorClass : validatorClasses) {
+      BeanValidator beanValidator = validatorClass.getDeclaredConstructor().newInstance();
+      beanValidator.validate(beanDefinitions);
+    }
   }
 
   /**
