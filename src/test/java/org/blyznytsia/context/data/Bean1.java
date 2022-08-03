@@ -6,7 +6,7 @@ import org.blyznytsia.annotation.Component;
 
 @Component
 @Data
-public class Bean1 {
+public class Bean1 implements BeanInterface {
 
   @Autowired private Bean2 bean2;
   @Autowired private Bean6 bean6;

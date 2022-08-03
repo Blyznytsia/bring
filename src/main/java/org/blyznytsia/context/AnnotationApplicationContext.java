@@ -11,8 +11,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.exception.NoSuchBeanException;
 import org.blyznytsia.exception.NoUniqueBeanException;
-import org.blyznytsia.factory.ObjectFactory;
 import org.blyznytsia.model.BeanDefinition;
+import org.blyznytsia.processor.BeanFactoryProcessor;
 import org.blyznytsia.scanner.BeanScanner;
 import org.reflections.Reflections;
 
@@ -55,7 +55,7 @@ public class AnnotationApplicationContext implements ApplicationContext {
    * <b>Steps:</b>
    * 1. Initialize {@link Reflections}
    * 2. Initialize and run all implementations of {@link BeanScanner}
-   * 3. Initialize {@link ObjectFactory} that creates beans
+   * 3. Initialize {@link BeanFactoryProcessor} that creates beans
    * and put them into {@link AnnotationApplicationContext#container}
    * </pre>
    *
@@ -64,7 +64,7 @@ public class AnnotationApplicationContext implements ApplicationContext {
   public AnnotationApplicationContext(String packageName) {
     this.reflections = new Reflections(packageName);
     var beanDefinitions = initAndRunScanners(packageName);
-    new ObjectFactory(this).initiateContext(beanDefinitions);
+    new BeanFactoryProcessor(this).initiateContext(beanDefinitions);
   }
 
   /**
@@ -124,7 +124,7 @@ public class AnnotationApplicationContext implements ApplicationContext {
    */
   @SneakyThrows
   private List<BeanDefinition> initAndRunScanners(String packageName) {
-    log.debug("Searching scanners in {} package", packageName);
+    log.debug("Searching for scanners in {} package", packageName);
     var scannerClasses = reflections.getSubTypesOf(BeanScanner.class);
     log.debug("Found {} scanners in {} package", scannerClasses.size(), packageName);
 
