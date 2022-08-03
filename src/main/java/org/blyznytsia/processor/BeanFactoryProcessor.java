@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.blyznytsia.bpp.BeanPostProcessor;
 import org.blyznytsia.context.ApplicationContext;
 import org.blyznytsia.model.BeanDefinition;
 
@@ -11,7 +12,7 @@ import org.blyznytsia.model.BeanDefinition;
  * Creates beans and fill out the context container
  *
  * @see org.blyznytsia.context.ApplicationContext
- * @see org.blyznytsia.processor.BeanPostProcessor
+ * @see BeanPostProcessor
  */
 @Slf4j
 public class BeanFactoryProcessor {
@@ -118,7 +119,7 @@ public class BeanFactoryProcessor {
   private Object configure(Object bean, BeanDefinition beanDefinition) {
     log.debug("Configuring {} bean", beanDefinition.getName());
     for (var postProcessor : postProcessors) {
-      bean = postProcessor.configure(bean, beanDefinition, context);
+      bean = postProcessor.configure(bean, context);
     }
 
     return bean;
