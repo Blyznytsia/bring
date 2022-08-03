@@ -8,10 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import org.blyznytsia.bpp.data.RegionRepository;
-import org.blyznytsia.bpp.data.WeatherController;
-import org.blyznytsia.bpp.data.WeatherRepository;
-import org.blyznytsia.bpp.data.WeatherService;
+import org.blyznytsia.bpp.data.*;
 import org.blyznytsia.context.ApplicationContext;
 import org.blyznytsia.exception.BeanConfigurationException;
 import org.junit.jupiter.api.Test;
@@ -32,6 +29,10 @@ class AutowiredAnnotationBeanPostProcessorTest {
     var beanPostProcessor = new AutowiredAnnotationBeanPostProcessor();
     var beanToConfigure = new WeatherService();
     beanPostProcessor.configure(beanToConfigure, testContext);
+
+    var beanPostProcessor1 = new ValueAnnotationBeanPostProcessor();
+    var beanToConfigure1 = new AccessPoint();
+    beanPostProcessor1.configure(beanToConfigure1, testContext);
 
     assertThat(beanToConfigure.getWeatherRepository()).isNotNull();
     assertThat(beanToConfigure.getRegionRepository()).isNotNull();
