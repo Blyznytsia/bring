@@ -1,4 +1,4 @@
-package org.blyznytsia.processor;
+package org.blyznytsia.context;
 
 import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,9 +9,8 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.blyznytsia.context.AnnotationApplicationContext;
+import org.blyznytsia.context.data.EmptyBean;
 import org.blyznytsia.model.BeanDefinition;
-import org.blyznytsia.processor.data.EmptyBean;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.reflections.Reflections;
 
 @ExtendWith(MockitoExtension.class)
-class BeanFactoryProcessorTest {
+class ObjectFactoryTest {
 
   @Mock private AnnotationApplicationContext context;
 
@@ -39,7 +38,7 @@ class BeanFactoryProcessorTest {
 
     when(context.getContainer()).thenReturn(container);
     when(context.getReflections()).thenReturn(new Reflections());
-    var beanFactoryProcessor = new BeanFactoryProcessor(context);
+    var beanFactoryProcessor = new ObjectFactory(context);
 
     // when:
     beanFactoryProcessor.initiateContext(beanDefinitions);

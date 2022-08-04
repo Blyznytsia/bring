@@ -1,4 +1,4 @@
-package org.blyznytsia.processor;
+package org.blyznytsia.context;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.bpp.BeanPostProcessor;
-import org.blyznytsia.context.ApplicationContext;
 import org.blyznytsia.exception.BeanConfigurationException;
 import org.blyznytsia.exception.NoDefaultConstructorException;
 import org.blyznytsia.model.BeanDefinition;
@@ -20,7 +19,7 @@ import org.blyznytsia.model.BeanDefinition;
  * @see BeanPostProcessor
  */
 @Slf4j
-public class BeanFactoryProcessor {
+public class ObjectFactory {
 
   /** Provide access to context container */
   private final ApplicationContext context;
@@ -32,7 +31,7 @@ public class BeanFactoryProcessor {
    *
    * @param context {@link ApplicationContext}
    */
-  public BeanFactoryProcessor(ApplicationContext context) {
+  public ObjectFactory(ApplicationContext context) {
     this.context = context;
     initPostProcessors();
   }
