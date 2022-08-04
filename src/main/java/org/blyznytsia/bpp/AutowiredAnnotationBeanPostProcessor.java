@@ -5,6 +5,11 @@ import org.blyznytsia.annotation.Autowired;
 import org.blyznytsia.context.ApplicationContext;
 import org.blyznytsia.exception.BeanConfigurationException;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
+
 /**
  * Implementation of {@link BeanPostProcessor} interface that injects beans into fields annotated
  * with {@link org.blyznytsia.annotation.Autowired}
@@ -25,8 +30,7 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
       for (var field : bean.getClass().getDeclaredFields()) {
         if (field.isAnnotationPresent(Autowired.class)) {
           field.setAccessible(true);
-          var value = context.getBean(field.getType());
-          field.set(bean, value);
+          field.set(bean, calculateValue(context, field));
 
           log.debug(
               "Successfully initialized {} field with the value of {} type",
@@ -41,4 +45,18 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
 
     return bean;
   }
+
+  private Object calculateValue(ApplicationContext context, Field field) {
+    if (List.class.isAssignableFrom(field.getType()) && field.getGenericType() instanceof ParameterizedType type) {
+      Type[] typeArguments = type.getActualTypeArguments();
+      if (typeArguments == null || typeArguments.length != 1) {
+        throw new IllegalStateException("Cannot initialize a bean");
+      }
+      var allBeans = context.getAllBeans(field.getType());
+      return allBeans.values().stream().toList();
+    } else {
+      return context.getBean(field.getType());
+    }
+  }
+
 }
