@@ -47,11 +47,7 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
   }
 
   private Object calculateValue(ApplicationContext context, Field field) {
-    if (List.class.isAssignableFrom(field.getType()) && field.getGenericType() instanceof ParameterizedType type) {
-      Type[] typeArguments = type.getActualTypeArguments();
-      if (typeArguments == null || typeArguments.length != 1) {
-        throw new IllegalStateException("Cannot initialize a bean");
-      }
+    if (List.class.isAssignableFrom(field.getType()) && field.getGenericType() instanceof ParameterizedType) {
       var allBeans = context.getAllBeans(field.getType());
       return allBeans.values().stream().toList();
     } else {

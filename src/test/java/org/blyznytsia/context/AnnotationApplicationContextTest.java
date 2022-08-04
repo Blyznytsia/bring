@@ -8,6 +8,7 @@ import org.blyznytsia.context.data.Bean3;
 import org.blyznytsia.context.data.Bean4;
 import org.blyznytsia.context.data.Bean5;
 import org.blyznytsia.context.data.Bean6;
+import org.blyznytsia.context.data.Bean7;
 import org.blyznytsia.context.data.BeanInterface;
 import org.junit.jupiter.api.Test;
 
@@ -52,4 +53,11 @@ class AnnotationApplicationContextTest {
     assertThat(beans.get("bean1").getClass()).isEqualTo(Bean1.class);
     assertThat(beans.get("bean2").getClass()).isEqualTo(Bean2.class);
   }
+
+  @Test
+  void getListBean_givenValidBeanNameAndTypeInList_shouldReturnBean() {
+    var bean7 = ctx.getBean("bean7", Bean7.class);
+    assertThat(bean7).isInstanceOf(Bean7.class);
+  }
+
 }
