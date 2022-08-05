@@ -5,6 +5,7 @@ import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Value;
 import org.blyznytsia.context.ApplicationContext;
+import org.blyznytsia.exception.BeanConfigurationException;
 import org.blyznytsia.util.TypeResolver;
 
 /**
@@ -14,32 +15,38 @@ import org.blyznytsia.util.TypeResolver;
 @Slf4j
 public class ValueAnnotationBeanPostProcessor implements BeanPostProcessor {
 
+  public static final String DEFAULT_APPLICATION_PROPERTIES = "application.properties";
   private final Properties properties;
 
   public ValueAnnotationBeanPostProcessor() {
-    this.properties = loadProperties("application.properties");
+    this.properties = loadProperties(DEFAULT_APPLICATION_PROPERTIES);
   }
 
   @Override
   public Object configure(Object bean, ApplicationContext context) {
     for (var field : bean.getClass().getDeclaredFields()) {
-
       if (field.isAnnotationPresent(Value.class)) {
-        var annotation = field.getAnnotation(Value.class);
-        Object value =
-            annotation.value().isBlank()
-                ? properties.get(field.getName())
-                : properties.get(annotation.value());
-
+        log.debug("Initializing {} field", field);
         try {
+          var annotation = field.getAnnotation(Value.class);
+          Object value =
+              annotation.value().isBlank()
+                  ? properties.get(field.getName())
+                  : properties.get(annotation.value());
+
           field.setAccessible(true);
-          field.set(bean, TypeResolver.parseToType((String) value, field.getType()));
-        } catch (IllegalAccessException | NumberFormatException | ClassCastException e) {
-          throw new RuntimeException(
-              String.format(
-                  "Can't set value \"%s\" from properties to field \"%s\" in class %s",
-                  value, field.getName(), bean.getClass().getName()),
-              e);
+          Object typedValue = TypeResolver.parseToType((String) value, field.getType());
+          field.set(bean, typedValue);
+
+          log.debug(
+              "Successfully initialized '{}' field with '{}' value from {}",
+              field.getName(),
+              typedValue,
+              DEFAULT_APPLICATION_PROPERTIES);
+
+        } catch (Exception e) {
+          log.error("Exception during bean configuration: {}", e.getMessage());
+          throw new BeanConfigurationException("Failed to inject %s property from", e);
         }
       }
     }
@@ -50,16 +57,16 @@ public class ValueAnnotationBeanPostProcessor implements BeanPostProcessor {
     var inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream(resourceName);
     if (inputStream == null) {
       throw new RuntimeException(
-          "Can't find properties file in resources with name application.properties");
+          "Failed to find '%s' properties file in resources".formatted(resourceName));
     }
 
-    Properties properties = new Properties();
+    var props = new Properties();
     try {
-      properties.load(inputStream);
+      props.load(inputStream);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Failed to load properties from %s".formatted(resourceName), e);
     }
 
-    return properties;
+    return props;
   }
 }
