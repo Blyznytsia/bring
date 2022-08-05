@@ -27,7 +27,8 @@ public class DependencyValidator implements BeanValidator {
   public void validate(Set<BeanDefinition> beanDefinitions) {
     this.beans =
         beanDefinitions.stream()
-            .collect(Collectors.toMap(BeanDefinition::getName, BeanDefinition::getDependsOnBeans));
+            .collect(
+                Collectors.toMap(BeanDefinition::getName, BeanDefinition::getFieldDependencies));
     validateBeans();
   }
 

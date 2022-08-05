@@ -1,5 +1,6 @@
 package org.blyznytsia.scanner;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -8,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Autowired;
 import org.blyznytsia.annotation.Component;
 import org.blyznytsia.model.BeanDefinition;
-import org.blyznytsia.util.Helper;
+import org.blyznytsia.util.BeanDefinitionUtils;
 import org.reflections.Reflections;
 
 /** Scanner for the @{@link Component} annotation. */
@@ -58,10 +59,15 @@ public class ComponentAnnotationScanner implements BeanScanner {
    * @return {@link BeanDefinition}
    */
   private BeanDefinition createBeanDefinition(Class<?> targetClass) {
+    Constructor<?> constructor = BeanDefinitionUtils.findConstructor(targetClass);
+    Set<String> constructorDeps = BeanDefinitionUtils.findRequiredDependencies(constructor);
+
     return BeanDefinition.builder()
         .type(targetClass)
         .name(resolveBeanName(targetClass))
-        .dependsOnBeans(getAutowiredFields(targetClass))
+        .requiredDependencies(constructorDeps)
+        .fieldDependencies(findAutowiredFields(targetClass))
+        .constructor(constructor)
         .build();
   }
 
@@ -73,7 +79,9 @@ public class ComponentAnnotationScanner implements BeanScanner {
    */
   private String resolveBeanName(Class<?> targetClass) {
     var annotationValue = targetClass.getAnnotation(COMPONENT_ANNOTATION).value();
-    return annotationValue.isBlank() ? Helper.resolveBeanName(targetClass) : annotationValue;
+    return annotationValue.isBlank()
+        ? BeanDefinitionUtils.resolveBeanName(targetClass)
+        : annotationValue;
   }
 
   /**
@@ -81,23 +89,10 @@ public class ComponentAnnotationScanner implements BeanScanner {
    *     annotation
    * @return {@link java.util.Set} of {@link String} that represents bean dependencies
    */
-  private Set<String> getAutowiredFields(Class<?> targetClass) {
-    var set =
-        Arrays.stream(targetClass.getDeclaredFields())
-            .filter(el -> el.isAnnotationPresent(AUTOWIRED_ANNOTATION))
-            .map(el -> resolveBeanName(el.getType()))
-            .collect(Collectors.toSet());
-
-    Helper.checkAndGetAutowiredConstructor(targetClass)
-        .ifPresent(
-            constructor -> {
-              var arguments =
-                  Arrays.stream(constructor.getParameterTypes())
-                      .map(Helper::resolveBeanName)
-                      .collect(Collectors.toSet());
-              set.addAll(arguments);
-            });
-
-    return set;
+  private Set<String> findAutowiredFields(Class<?> targetClass) {
+    return Arrays.stream(targetClass.getDeclaredFields())
+        .filter(f -> f.isAnnotationPresent(AUTOWIRED_ANNOTATION))
+        .map(f -> resolveBeanName(f.getType()))
+        .collect(Collectors.toSet());
   }
 }

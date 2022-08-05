@@ -22,28 +22,28 @@ class DependencyValidatorTest {
     BeanDefinition bean1 =
         BeanDefinition.builder()
             .name(SERVICE_1)
-            .dependsOnBeans(Set.of(SERVICE_2))
+            .fieldDependencies(Set.of(SERVICE_2))
             .type(Service1.class)
             .build();
 
     BeanDefinition bean2 =
         BeanDefinition.builder()
             .name(SERVICE_2)
-            .dependsOnBeans(Set.of(SERVICE_1))
+            .fieldDependencies(Set.of(SERVICE_1))
             .type(Service2.class)
             .build();
 
     BeanDefinition bean4 =
         BeanDefinition.builder()
             .name(SERVICE_4)
-            .dependsOnBeans(Set.of(SERVICE_5))
+            .fieldDependencies(Set.of(SERVICE_5))
             .type(Service4.class)
             .build();
 
     BeanDefinition bean5 =
         BeanDefinition.builder()
             .name(SERVICE_5)
-            .dependsOnBeans(Set.of(SERVICE_4))
+            .fieldDependencies(Set.of(SERVICE_4))
             .type(Service5.class)
             .build();
 
@@ -64,21 +64,21 @@ class DependencyValidatorTest {
     BeanDefinition bean1 =
         BeanDefinition.builder()
             .name(SERVICE_1)
-            .dependsOnBeans(Set.of(SERVICE_2))
+            .fieldDependencies(Set.of(SERVICE_2))
             .type(Service1.class)
             .build();
 
     BeanDefinition bean2 =
         BeanDefinition.builder()
             .name(SERVICE_2)
-            .dependsOnBeans(Set.of(SERVICE_3))
+            .fieldDependencies(Set.of(SERVICE_3))
             .type(Service2.class)
             .build();
 
     BeanDefinition bean3 =
         BeanDefinition.builder()
             .name(SERVICE_3)
-            .dependsOnBeans(Set.of(SERVICE_1))
+            .fieldDependencies(Set.of(SERVICE_1))
             .type(Service3.class)
             .build();
 
@@ -97,21 +97,21 @@ class DependencyValidatorTest {
     BeanDefinition beanOne =
         BeanDefinition.builder()
             .name(SERVICE_1)
-            .dependsOnBeans(Set.of(SERVICE_2, SERVICE_3))
+            .fieldDependencies(Set.of(SERVICE_2, SERVICE_3))
             .type(Service1.class)
             .build();
 
     BeanDefinition beanTwo =
         BeanDefinition.builder()
             .name(SERVICE_2)
-            .dependsOnBeans(Set.of(SERVICE_3))
+            .fieldDependencies(Set.of(SERVICE_3))
             .type(Service2.class)
             .build();
 
     BeanDefinition beanThree =
         BeanDefinition.builder()
             .name(SERVICE_3)
-            .dependsOnBeans(Set.of())
+            .fieldDependencies(Set.of())
             .type(Service3.class)
             .build();
 

@@ -4,14 +4,14 @@ import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.blyznytsia.model.Scope.SINGLETON;
-import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.AnotherDependency;
-import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.Dependency;
 import static org.blyznytsia.scanner.data.configuration_scanner.TestConfig.Entity;
 
 import java.util.List;
 import java.util.Set;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.scanner.data.configuration_scanner.TestConfig;
+import org.blyznytsia.scanner.data.configuration_scanner.TestConfig.AnotherDependency;
+import org.blyznytsia.scanner.data.configuration_scanner.TestConfig.Dependency;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,14 +32,6 @@ class ConfigurationAnnotationScannerTest {
   void shouldScanAndBuildDefinitionsForBeansAndConfiguration() throws NoSuchMethodException {
     var actualDefinitions = scanner.scan(TEST_PACKAGE);
 
-    var configDefinition =
-        BeanDefinition.builder()
-            .name("testConfig")
-            .type(TestConfig.class)
-            .scope(SINGLETON)
-            .dependsOnBeans(emptySet())
-            .build();
-
     var beanDefinition1 =
         BeanDefinition.builder()
             .name("beanForEntity")
@@ -48,7 +40,8 @@ class ConfigurationAnnotationScannerTest {
             .beanMethod(
                 TestConfig.class.getMethod("entity", Dependency.class, AnotherDependency.class))
             .configClass(TestConfig.class)
-            .dependsOnBeans(Set.of("dependency", "anotherDependency"))
+            .requiredDependencies(Set.of("dependency", "anotherDependency"))
+            .fieldDependencies(emptySet())
             .scope(SINGLETON)
             .initMethod("init")
             .build();
@@ -60,12 +53,13 @@ class ConfigurationAnnotationScannerTest {
             .configClassDependency(true)
             .beanMethod(TestConfig.class.getMethod("dependency2"))
             .configClass(TestConfig.class)
-            .dependsOnBeans(emptySet())
+            .fieldDependencies(emptySet())
+            .requiredDependencies(emptySet())
             .initMethod(DEFAULT_INIT_METHOD_NAME)
             .scope(SINGLETON)
             .build();
 
-    var expectedDefinitions = List.of(configDefinition, beanDefinition1, beanDefinition2);
+    var expectedDefinitions = List.of(beanDefinition1, beanDefinition2);
 
     assertThat(actualDefinitions).containsExactlyInAnyOrderElementsOf(expectedDefinitions);
   }
@@ -97,7 +91,7 @@ class ConfigurationAnnotationScannerTest {
   void shouldThrowExceptionIfEmptyPackageProvided(String packageName) {
     assertThatThrownBy(() -> scanner.scan(packageName))
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Package cannot be blank");
+        .hasMessageContaining("Blank package isn't allowed");
   }
 
   @DisplayName("NPE should be thrown if package is null")

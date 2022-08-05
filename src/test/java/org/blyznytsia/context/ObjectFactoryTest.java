@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import lombok.SneakyThrows;
 import org.blyznytsia.context.data.EmptyBean;
 import org.blyznytsia.model.BeanDefinition;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.reflections.Reflections;
 
 @ExtendWith(MockitoExtension.class)
 class ObjectFactoryTest {
@@ -25,6 +25,7 @@ class ObjectFactoryTest {
 
   @Spy private Map<String, Object> container = new HashMap<>();
 
+  @SneakyThrows
   @Test
   void initiateContext_givenValidList_shouldInitializeContext() {
     // given:
@@ -33,21 +34,21 @@ class ObjectFactoryTest {
             BeanDefinition.builder()
                 .name("emptyBean")
                 .type(EmptyBean.class)
-                .dependsOnBeans(emptySet())
+                .fieldDependencies(emptySet())
+                .requiredDependencies(emptySet())
+                .constructor(EmptyBean.class.getConstructor())
                 .build());
 
     when(context.getContainer()).thenReturn(container);
-    when(context.getReflections()).thenReturn(new Reflections());
-    var beanFactoryProcessor = new ObjectFactory(context);
+    var objectFactory = new ObjectFactory(context);
 
     // when:
-    beanFactoryProcessor.initiateContext(beanDefinitions);
+    objectFactory.initiateContext(beanDefinitions);
     var expected = new EmptyBean();
     var actual = container.get("emptyBean");
 
     // then:
     assertEquals(expected, actual);
-    verify(context).getReflections();
     verify(context).getContainer();
     assertFalse(container.isEmpty());
   }

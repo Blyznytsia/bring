@@ -43,8 +43,7 @@ import org.reflections.Reflections;
 @Getter
 public class AnnotationApplicationContext implements ApplicationContext {
 
-  /** Packages scanner */
-  private final Reflections reflections;
+  private static final String DEFAULT_SCANNERS_PACKAGE = "org.blyznytsia.scanner";
   /** Beans container */
   private final Map<String, Object> container = new ConcurrentHashMap<>();
 
@@ -53,16 +52,14 @@ public class AnnotationApplicationContext implements ApplicationContext {
    *
    * <pre>
    * <b>Steps:</b>
-   * 1. Initialize {@link Reflections}
-   * 2. Initialize and run all implementations of {@link BeanScanner}
-   * 3. Initialize {@link ObjectFactory} that creates beans
+   * 1. Initialize and run all implementations of {@link BeanScanner}
+   * 2. Initialize {@link ObjectFactory} that creates beans
    * and put them into {@link AnnotationApplicationContext#container}
    * </pre>
    *
    * @param packageName package to scan
    */
   public AnnotationApplicationContext(String packageName) {
-    this.reflections = new Reflections(packageName);
     var beanDefinitions = initAndRunScanners(packageName);
     validate(beanDefinitions);
     new ObjectFactory(this).initiateContext(beanDefinitions);
@@ -76,8 +73,8 @@ public class AnnotationApplicationContext implements ApplicationContext {
   @SneakyThrows
   private void validate(Set<BeanDefinition> beanDefinitions) {
     Set<Class<? extends BeanValidator>> validatorClasses =
-        reflections.getSubTypesOf(BeanValidator.class);
-    for (Class<? extends BeanValidator> validatorClass : validatorClasses) {
+        new Reflections("org.blyznytsia.validator").getSubTypesOf(BeanValidator.class);
+    for (var validatorClass : validatorClasses) {
       BeanValidator beanValidator = validatorClass.getDeclaredConstructor().newInstance();
       beanValidator.validate(beanDefinitions);
     }
@@ -141,15 +138,15 @@ public class AnnotationApplicationContext implements ApplicationContext {
   @SneakyThrows
   private Set<BeanDefinition> initAndRunScanners(String packageName) {
     log.debug("Searching for scanners in {} package", packageName);
-    var scannerClasses = reflections.getSubTypesOf(BeanScanner.class);
-    log.debug("Found {} scanners in {} package", scannerClasses.size(), packageName);
+    var scannerClasses = new Reflections(DEFAULT_SCANNERS_PACKAGE).getSubTypesOf(BeanScanner.class);
+    log.debug("Found {} scanners in {} package", scannerClasses, packageName);
 
-    var set = new HashSet<BeanDefinition>();
+    var beanDefinitions = new HashSet<BeanDefinition>();
     for (var scannerClass : scannerClasses) {
       var beanScanner = scannerClass.getDeclaredConstructor().newInstance();
-      set.addAll(beanScanner.scan(packageName));
+      beanDefinitions.addAll(beanScanner.scan(packageName));
     }
 
-    return set;
+    return beanDefinitions;
   }
 }

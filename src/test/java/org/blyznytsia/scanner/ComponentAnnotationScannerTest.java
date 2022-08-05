@@ -29,9 +29,9 @@ class ComponentAnnotationScannerTest {
     var service2 = getBeanDefinitionByName(beanDefinitions, SERVICE2_NAME);
     var service3 = getBeanDefinitionByName(beanDefinitions, SERVICE3_NAME);
 
-    assertThat(service1.getDependsOnBeans()).containsOnly(SERVICE1_DEPENDENCY_NAME);
-    assertThat(service2.getDependsOnBeans()).containsOnly(SERVICE2_DEPENDENCY_NAMES);
-    assertThat(service3.getDependsOnBeans()).isEmpty();
+    assertThat(service1.getFieldDependencies()).containsOnly(SERVICE1_DEPENDENCY_NAME);
+    assertThat(service2.getFieldDependencies()).containsOnly(SERVICE2_DEPENDENCY_NAMES);
+    assertThat(service3.getFieldDependencies()).isEmpty();
   }
 
   @Test

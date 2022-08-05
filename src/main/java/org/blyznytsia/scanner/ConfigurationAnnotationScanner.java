@@ -2,6 +2,7 @@ package org.blyznytsia.scanner;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Bean;
 import org.blyznytsia.annotation.Configuration;
 import org.blyznytsia.model.BeanDefinition;
-import org.blyznytsia.util.Helper;
+import org.blyznytsia.util.BeanDefinitionUtils;
 import org.reflections.Reflections;
 
 /**
@@ -32,7 +33,7 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
   @Override
   public Set<BeanDefinition> scan(@NonNull String packageName) {
     if (packageName.isBlank()) {
-      throw new IllegalArgumentException("Package cannot be blank");
+      throw new IllegalArgumentException("Blank package isn't allowed");
     }
 
     log.info("Scanning '{}' package for classes annotated wth @Configuration", packageName);
@@ -40,26 +41,18 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
         new Reflections(packageName).getTypesAnnotatedWith(Configuration.class);
     log.debug("Found configurations classes: {}", configurationsClasses);
 
-    var allDefinitions = new HashSet<BeanDefinition>();
+    var allDefinitions =
+        configurationsClasses.stream()
+            .map(this::createDefinitionsForDeclaredBeans)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toCollection(HashSet::new));
 
-    for (var configClass : configurationsClasses) {
-      var configDefinition =
-          BeanDefinition.builder()
-              .name(Helper.resolveBeanName(configClass))
-              .type(configClass)
-              .dependsOnBeans(Collections.emptySet())
-              .build();
-      var declaredBeansDefinitions = findDefinitionsForDeclaredBeans(configClass);
-
-      allDefinitions.add(configDefinition);
-      allDefinitions.addAll(declaredBeansDefinitions);
-    }
     log.debug("Scanning is finished. Found bean definitions: {}", allDefinitions);
 
     return allDefinitions;
   }
 
-  private Set<BeanDefinition> findDefinitionsForDeclaredBeans(Class<?> configClass) {
+  private Set<BeanDefinition> createDefinitionsForDeclaredBeans(Class<?> configClass) {
     return Arrays.stream(configClass.getDeclaredMethods())
         .filter(m -> m.isAnnotationPresent(Bean.class))
         .map(m -> createDefinition(configClass, m))
@@ -74,17 +67,9 @@ public class ConfigurationAnnotationScanner implements BeanScanner {
         .name(resolveBeanNameFromMethod(method))
         .type(method.getReturnType())
         .initMethod(method.getAnnotation(Bean.class).initMethod())
-        .dependsOnBeans(findDependencies(method))
+        .fieldDependencies(Collections.emptySet())
+        .requiredDependencies(BeanDefinitionUtils.findRequiredDependencies(method))
         .build();
-  }
-
-  // TODO: move methods for extracting information for BeanDefinition fields to BeanDefinition or
-  // helper class.
-  // TODO: revisit type for Set<String> dependencies ... should be map
-  private Set<String> findDependencies(Method method) {
-    return Arrays.stream(method.getParameterTypes())
-        .map(Helper::resolveBeanName)
-        .collect(Collectors.toSet());
   }
 
   private String resolveBeanNameFromMethod(Method beanMethod) {
