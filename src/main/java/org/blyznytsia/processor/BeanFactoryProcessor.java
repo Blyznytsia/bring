@@ -2,9 +2,11 @@ package org.blyznytsia.processor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.bpp.BeanPostProcessor;
+import org.blyznytsia.bpp.ProxyBeanProcessor;
 import org.blyznytsia.context.ApplicationContext;
 import org.blyznytsia.model.BeanDefinition;
 
@@ -22,6 +24,8 @@ public class BeanFactoryProcessor {
   /** List of already initialized bean post processors */
   private final List<BeanPostProcessor> postProcessors = new ArrayList<>();
 
+  private final List<ProxyBeanProcessor> proxyBeanProcessors = new ArrayList<>();
+
   /**
    * Creates object factory and initializes bean post processors
    *
@@ -30,6 +34,17 @@ public class BeanFactoryProcessor {
   public BeanFactoryProcessor(ApplicationContext context) {
     this.context = context;
     initPostProcessors();
+    initProxyBeanProcessors();
+  }
+
+  @SneakyThrows
+  private void initProxyBeanProcessors() {
+    Set<Class<? extends ProxyBeanProcessor>> proxies =
+        context.getReflections().getSubTypesOf(ProxyBeanProcessor.class);
+    for (Class<? extends ProxyBeanProcessor> proxy : proxies) {
+      ProxyBeanProcessor proxyBeanProcessor = proxy.getDeclaredConstructor().newInstance();
+      proxyBeanProcessors.add(proxyBeanProcessor);
+    }
   }
 
   /**
@@ -94,7 +109,21 @@ public class BeanFactoryProcessor {
   private void createBean(BeanDefinition beanDefinition) {
     log.debug("Creating of bean {}", beanDefinition.getName());
     var bean = beanDefinition.getType().getDeclaredConstructor().newInstance();
-    context.getContainer().put(beanDefinition.getName(), configure(bean, beanDefinition));
+
+    Object object = configure(bean, beanDefinition);
+
+    Object proxyObject = proxyObject(object);
+
+    context.getContainer().put(beanDefinition.getName(), proxyObject);
+  }
+
+  private Object proxyObject(Object object) {
+    Object proxyObject = object;
+    for (ProxyBeanProcessor proxyBeanProcessor : proxyBeanProcessors) {
+      proxyObject = proxyBeanProcessor.configure(object);
+    }
+
+    return proxyObject;
   }
 
   /** Initializes post processors */
