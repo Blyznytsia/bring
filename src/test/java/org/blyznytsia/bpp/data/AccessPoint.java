@@ -12,5 +12,8 @@ public class AccessPoint {
     String hostVal;
 
     @Values("port")
-    String port;
+    Integer port;
+
+    @Values("id")
+    Long id;
 }

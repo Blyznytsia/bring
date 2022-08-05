@@ -22,7 +22,8 @@ public class ValuesAnnotationBeanPostProcessorTest {
     beanPostProcessor1.configure(beanToConfigure1, testContext);
 
     assertThat(beanToConfigure1.getHostVal()).isEqualTo("http://localhost");
-    assertThat(beanToConfigure1.getPort()).isEqualTo("8082");
+    assertThat(beanToConfigure1.getPort()).isEqualTo(8082);
+    assertThat(beanToConfigure1.getId()).isEqualTo(345123L);
 
   }
 }
