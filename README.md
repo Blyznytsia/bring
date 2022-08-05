@@ -7,6 +7,8 @@
     - [Configuration](#configuration)
     - [Context](#context)
 - [Contribution/Development](#contributiondevelopment)
+- [Installation and Getting Started](#installation-and-getting-started)
+- [License](#license)
 
 ## Description
 
@@ -76,3 +78,78 @@ Code in this repository uses google-code-format.
 - To apply the format, run `mvn spotless:apply`.
 - Be sure to run `mvn spotless:check` before committing code.
 - To enable google-java-format in Intellij IDEA, follow this [steps](https://gerrit.cloudera.org/Documentation/dev-intellij.html#_code_style)
+
+
+## Installation and Getting Started
+
+
+Here a simple tutorial how to start working with Bring framework.
+
+Steps:
+
+- Clone project: `git clone https://github.com/Blyznytsia/bring.git`
+- Install in a local maven repository: `mvn install`
+- Add dependency to your existing or new project:
+  - maven: 
+  ```xml
+        <dependency>
+            <groupId>org.blyznytsia</groupId>
+            <artifactId>bring</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+  ```
+  - gradle: 
+  ```groovy
+    compile group: 'org.blyznytsia', name: 'bring', version: '1.0-SNAPSHOT'
+    ```
+
+- Create a component class that can be created and injected to the another component class. Example:
+    ```java
+    package org.blyznytsia;
+    
+    import org.blyznytsia.annotation.Component;
+    
+    @Component
+    public class Component1 {
+    }
+    ```
+    ```java
+    package org.blyznytsia;
+  
+    import org.blyznytsia.annotation.Autowired;
+    import org.blyznytsia.annotation.Component;
+    
+    @Component
+    public class Component2 {
+        
+        @Autowired
+        private Component1 component1;
+  
+        public void greeting() {
+            System.out.println("Hello world!");
+        } 
+        
+    }
+  ```
+  
+- Put the name of package need to be scanned to the `AnnotationApplicationContext` constructor and add it to `main` method. 
+Get created object from the `AnnotationApplicationContext`. Example:
+    ```java
+    package org.blyznytsia;
+    
+    import org.blyznytsia.annotation.Component;
+    import org.blyznytsia.context.AnnotationApplicationContext;
+    import org.blyznytsia.Component2;
+
+    public class Main {
+    
+        public static void main(String[] args) {
+            var ctx = new AnnotationApplicationContext("org.blyznytsia");
+            Component2 component2 = ctx.getBean(Component2.class);
+            component2.greeting();
+        }
+    }
+    ```
+
+##License
+Bring is Open Source software released under the Apache 2.0 license.
