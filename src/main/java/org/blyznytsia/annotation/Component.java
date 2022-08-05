@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
  * @see org.blyznytsia.annotation.Autowired
  * @see org.blyznytsia.annotation.Bean
  * @see org.blyznytsia.annotation.Configuration
- * @see Value
+ * @see org.blyznytsia.annotation.Value
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

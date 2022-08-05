@@ -7,8 +7,7 @@ import java.lang.annotation.RetentionPolicy;
  * Fields can be marked by annotation @Values. It indicates that a value from application.properties
  * can be inserted into that fields
  *
- * <p>For example application.properties file contain pair:
- *   host=http://localhost
+ * <p>For example application.properties file contain pair: host=http://localhost
  *
  * <pre class="code">
  *     @Values("host")
@@ -20,9 +19,9 @@ import java.lang.annotation.RetentionPolicy;
  * @see org.blyznytsia.annotation.Autowired
  * @see org.blyznytsia.annotation.Component
  * @see org.blyznytsia.annotation.Configuration
- * @see Value
+ * @see org.blyznytsia.annotation.Value
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Value {
-    String value();
+  String value();
 }
