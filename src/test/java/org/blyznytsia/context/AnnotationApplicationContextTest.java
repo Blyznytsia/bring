@@ -59,5 +59,4 @@ class AnnotationApplicationContextTest {
     var bean7 = ctx.getBean("bean7", Bean7.class);
     assertThat(bean7).isInstanceOf(Bean7.class);
   }
-
 }

@@ -1,5 +1,9 @@
 package org.blyznytsia.scanner;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
+import java.util.List;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Autowired;
@@ -7,11 +11,6 @@ import org.blyznytsia.annotation.Component;
 import org.blyznytsia.model.BeanDefinition;
 import org.blyznytsia.util.Helper;
 import org.reflections.Reflections;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
-import java.util.List;
 
 /** Scanner for the @{@link Component} annotation. */
 @Slf4j
@@ -67,14 +66,13 @@ public class ComponentAnnotationScanner implements BeanScanner {
   }
 
   /**
-   * @param field object of type {@link Class} that is annotated with @{@link Component}
-   *     annotation
+   * @param field object of type {@link Class} that is annotated with @{@link Component} annotation
    * @return @{@link Component#value()} or {@link Class#getSimpleName()} starting with lowercase
    *     letter
    */
   private String resolveBeanName(Field field) {
     Class<?> targetClass = field.getType();
-    if(field.getGenericType() instanceof ParameterizedType type) {
+    if (field.getGenericType() instanceof ParameterizedType type) {
       return resolveBeanName((Class<?>) type.getActualTypeArguments()[0]);
     }
     return resolveBeanName(targetClass);

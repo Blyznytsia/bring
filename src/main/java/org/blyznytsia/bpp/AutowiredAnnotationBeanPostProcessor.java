@@ -1,14 +1,12 @@
 package org.blyznytsia.bpp;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Autowired;
 import org.blyznytsia.context.ApplicationContext;
 import org.blyznytsia.exception.BeanConfigurationException;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.List;
 
 /**
  * Implementation of {@link BeanPostProcessor} interface that injects beans into fields annotated
@@ -47,12 +45,12 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
   }
 
   private Object calculateValue(ApplicationContext context, Field field) {
-    if (List.class.isAssignableFrom(field.getType()) && field.getGenericType() instanceof ParameterizedType) {
+    if (List.class.isAssignableFrom(field.getType())
+        && field.getGenericType() instanceof ParameterizedType) {
       var allBeans = context.getAllBeans(field.getType());
       return allBeans.values().stream().toList();
     } else {
       return context.getBean(field.getType());
     }
   }
-
 }
