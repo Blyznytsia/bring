@@ -2,18 +2,18 @@ package org.blyznytsia.bpp.data;
 
 import lombok.Getter;
 import org.blyznytsia.annotation.Component;
-import org.blyznytsia.annotation.Values;
+import org.blyznytsia.annotation.Value;
 
 @Component
 @Getter
 public class AccessPoint {
 
-    @Values("host")
+    @Value("host")
     String hostVal;
 
-    @Values("port")
+    @Value("port")
     Integer port;
 
-    @Values("id")
+    @Value("id")
     Long id;
 }

@@ -1,7 +1,7 @@
 package org.blyznytsia.bpp;
 
 import lombok.extern.slf4j.Slf4j;
-import org.blyznytsia.annotation.Values;
+import org.blyznytsia.annotation.Value;
 import org.blyznytsia.context.ApplicationContext;
 import org.blyznytsia.util.TypeResolver;
 
@@ -10,7 +10,7 @@ import java.util.Properties;
 
 /**
  * Implementation of {@link BeanPostProcessor} interface that injects values into fields annotated
- * with {@link org.blyznytsia.annotation.Values}
+ * with {@link Value}
  */
 @Slf4j
 public class ValueAnnotationBeanPostProcessor implements BeanPostProcessor {
@@ -24,8 +24,8 @@ public class ValueAnnotationBeanPostProcessor implements BeanPostProcessor {
     public Object configure(Object bean, ApplicationContext context) {
         for (var field : bean.getClass().getDeclaredFields()) {
 
-            if (field.isAnnotationPresent(Values.class)) {
-                var annotation = field.getAnnotation(Values.class);
+            if (field.isAnnotationPresent(Value.class)) {
+                var annotation = field.getAnnotation(Value.class);
                 Object value =
                         annotation.value().isBlank()
                                 ? properties.get(field.getName())

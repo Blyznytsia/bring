@@ -10,7 +10,7 @@ import java.lang.annotation.RetentionPolicy;
  * @see org.blyznytsia.annotation.Component
  * @see org.blyznytsia.annotation.Bean
  * @see org.blyznytsia.annotation.Configuration
- * @see org.blyznytsia.annotation.Values
+ * @see Value
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Autowired {}

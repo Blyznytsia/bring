@@ -10,20 +10,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-public class ValuesAnnotationBeanPostProcessorTest {
+public class ValueAnnotationBeanPostProcessorTest {
 
   @Mock ApplicationContext testContext;
 
   @Test
   void configure_givenFieldsAnnotatedWithValues_shouldInitializeItWithValue() {
 
-    var beanPostProcessor1 = new ValueAnnotationBeanPostProcessor();
-    var beanToConfigure1 = new AccessPoint();
-    beanPostProcessor1.configure(beanToConfigure1, testContext);
+    var beanPostProcessor = new ValueAnnotationBeanPostProcessor();
+    var beanToConfigure = new AccessPoint();
+    beanPostProcessor.configure(beanToConfigure, testContext);
 
-    assertThat(beanToConfigure1.getHostVal()).isEqualTo("http://localhost");
-    assertThat(beanToConfigure1.getPort()).isEqualTo(8082);
-    assertThat(beanToConfigure1.getId()).isEqualTo(345123L);
+    assertThat(beanToConfigure.getHostVal()).isEqualTo("http://localhost");
+    assertThat(beanToConfigure.getPort()).isEqualTo(8082);
+    assertThat(beanToConfigure.getId()).isEqualTo(345123L);
 
   }
 }

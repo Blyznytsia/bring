@@ -20,9 +20,9 @@ import java.lang.annotation.RetentionPolicy;
  * @see org.blyznytsia.annotation.Autowired
  * @see org.blyznytsia.annotation.Component
  * @see org.blyznytsia.annotation.Configuration
- * @see org.blyznytsia.annotation.Values
+ * @see Value
  */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Values {
+public @interface Value {
     String value();
 }
