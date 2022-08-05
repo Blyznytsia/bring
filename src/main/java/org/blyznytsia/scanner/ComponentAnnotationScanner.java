@@ -1,5 +1,7 @@
 package org.blyznytsia.scanner;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.List;
 import lombok.NonNull;
@@ -64,11 +66,18 @@ public class ComponentAnnotationScanner implements BeanScanner {
   }
 
   /**
-   * @param targetClass object of type {@link Class} that is annotated with @{@link Component}
-   *     annotation
+   * @param field object of type {@link Class} that is annotated with @{@link Component} annotation
    * @return @{@link Component#value()} or {@link Class#getSimpleName()} starting with lowercase
    *     letter
    */
+  private String resolveBeanName(Field field) {
+    Class<?> targetClass = field.getType();
+    if (field.getGenericType() instanceof ParameterizedType type) {
+      return resolveBeanName((Class<?>) type.getActualTypeArguments()[0]);
+    }
+    return resolveBeanName(targetClass);
+  }
+
   private String resolveBeanName(Class<?> targetClass) {
     var annotationValue = targetClass.getAnnotation(COMPONENT_ANNOTATION).value();
     return annotationValue.isBlank() ? Helper.resolveBeanName(targetClass) : annotationValue;
@@ -82,7 +91,7 @@ public class ComponentAnnotationScanner implements BeanScanner {
   private List<String> getAutowiredFields(Class<?> targetClass) {
     return Arrays.stream(targetClass.getDeclaredFields())
         .filter(el -> el.isAnnotationPresent(AUTOWIRED_ANNOTATION))
-        .map(el -> resolveBeanName(el.getType()))
+        .map(field -> resolveBeanName(field))
         .toList();
   }
 }

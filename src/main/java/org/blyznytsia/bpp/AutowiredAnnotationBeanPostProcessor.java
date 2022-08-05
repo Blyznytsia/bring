@@ -1,5 +1,8 @@
 package org.blyznytsia.bpp;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Autowired;
 import org.blyznytsia.context.ApplicationContext;
@@ -25,8 +28,7 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
       for (var field : bean.getClass().getDeclaredFields()) {
         if (field.isAnnotationPresent(Autowired.class)) {
           field.setAccessible(true);
-          var value = context.getBean(field.getType());
-          field.set(bean, value);
+          field.set(bean, calculateValue(context, field));
 
           log.debug(
               "Successfully initialized {} field with the value of {} type",
@@ -40,5 +42,15 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
     }
 
     return bean;
+  }
+
+  private Object calculateValue(ApplicationContext context, Field field) {
+    if (List.class.isAssignableFrom(field.getType())
+        && field.getGenericType() instanceof ParameterizedType) {
+      var allBeans = context.getAllBeans(field.getType());
+      return allBeans.values().stream().toList();
+    } else {
+      return context.getBean(field.getType());
+    }
   }
 }
