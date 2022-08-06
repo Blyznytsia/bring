@@ -8,8 +8,7 @@ import org.blyznytsia.annotation.Value;
 @Getter
 public class AccessPoint {
 
-  @Value("host")
-  String hostVal;
+  @Value String hostVal;
 
   @Value("port")
   Integer port;

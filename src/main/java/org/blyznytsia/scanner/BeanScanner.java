@@ -1,6 +1,6 @@
 package org.blyznytsia.scanner;
 
-import java.util.List;
+import java.util.Set;
 import org.blyznytsia.model.BeanDefinition;
 
 /**
@@ -16,5 +16,5 @@ import org.blyznytsia.model.BeanDefinition;
  */
 public interface BeanScanner {
 
-  List<BeanDefinition> scan(String packageName);
+  Set<BeanDefinition> scan(String packageName);
 }

@@ -3,7 +3,6 @@ package org.blyznytsia.context;
 import java.util.Map;
 import org.blyznytsia.exception.NoSuchBeanException;
 import org.blyznytsia.exception.NoUniqueBeanException;
-import org.reflections.Reflections;
 
 /**
  * Central interface to provide access and retrieve beans object. Similar as BeanFactory in Spring
@@ -44,13 +43,6 @@ public interface ApplicationContext {
    *     {@link Map}
    */
   <T> Map<String, T> getAllBeans(Class<T> beanType);
-
-  /**
-   * Getter for {@link Reflections}
-   *
-   * @return {@link Reflections}
-   */
-  Reflections getReflections();
 
   /**
    * Getter for container

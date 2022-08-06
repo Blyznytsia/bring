@@ -3,7 +3,7 @@ package org.blyznytsia.scanner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import java.util.List;
+import java.util.Set;
 import org.blyznytsia.model.BeanDefinition;
 import org.junit.jupiter.api.Test;
 
@@ -29,9 +29,9 @@ class ComponentAnnotationScannerTest {
     var service2 = getBeanDefinitionByName(beanDefinitions, SERVICE2_NAME);
     var service3 = getBeanDefinitionByName(beanDefinitions, SERVICE3_NAME);
 
-    assertThat(service1.getDependsOnBeans()).containsOnly(SERVICE1_DEPENDENCY_NAME);
-    assertThat(service2.getDependsOnBeans()).containsOnly(SERVICE2_DEPENDENCY_NAMES);
-    assertThat(service3.getDependsOnBeans()).isEmpty();
+    assertThat(service1.getFieldDependencies()).containsOnly(SERVICE1_DEPENDENCY_NAME);
+    assertThat(service2.getFieldDependencies()).containsOnly(SERVICE2_DEPENDENCY_NAMES);
+    assertThat(service3.getFieldDependencies()).isEmpty();
   }
 
   @Test
@@ -41,7 +41,7 @@ class ComponentAnnotationScannerTest {
         .withMessage("packageName is marked non-null but is null");
   }
 
-  private BeanDefinition getBeanDefinitionByName(List<BeanDefinition> list, String name) {
-    return list.stream().filter(el -> el.getName().equals(name)).findFirst().orElseThrow();
+  private BeanDefinition getBeanDefinitionByName(Set<BeanDefinition> set, String name) {
+    return set.stream().filter(el -> el.getName().equals(name)).findFirst().orElseThrow();
   }
 }

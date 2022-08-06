@@ -1,13 +1,15 @@
 package org.blyznytsia.scanner;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.blyznytsia.annotation.Autowired;
 import org.blyznytsia.annotation.Component;
 import org.blyznytsia.model.BeanDefinition;
-import org.blyznytsia.util.Helper;
+import org.blyznytsia.util.BeanDefinitionUtils;
 import org.reflections.Reflections;
 
 /** Scanner for the @{@link Component} annotation. */
@@ -29,14 +31,14 @@ public class ComponentAnnotationScanner implements BeanScanner {
    * 2. Find all classes annotated with @{@link Component} annotation
    * 3. Create {@link BeanDefinition} based on these classes
    * 4. If the class has fields annotated with @{@link Autowired} annotation, then add dependencies to {@link BeanDefinition#dependsOnBeans}
-   * 5. Return {@link java.util.List} of {@link BeanDefinition}
+   * 5. Return {@link java.util.Set} of {@link BeanDefinition}
    * </pre>
    *
    * @param packageName object of type {@link String} that represents packages to scan
-   * @return {@link java.util.List} of {@link BeanDefinition}
+   * @return {@link java.util.Set} of {@link BeanDefinition}
    */
   @Override
-  public List<BeanDefinition> scan(@NonNull String packageName) {
+  public Set<BeanDefinition> scan(@NonNull String packageName) {
     log.info("Scanning '{}' package for classes annotated wth @Component", packageName);
 
     var reflections = new Reflections(packageName);
@@ -44,7 +46,8 @@ public class ComponentAnnotationScanner implements BeanScanner {
 
     log.debug("Found @Component classes: {}", targetClasses);
 
-    var beanDefinitions = targetClasses.stream().map(this::createBeanDefinition).toList();
+    var beanDefinitions =
+        targetClasses.stream().map(this::createBeanDefinition).collect(Collectors.toSet());
     log.debug("Created BeanDefinition classes: {}", beanDefinitions);
 
     return beanDefinitions;
@@ -56,10 +59,15 @@ public class ComponentAnnotationScanner implements BeanScanner {
    * @return {@link BeanDefinition}
    */
   private BeanDefinition createBeanDefinition(Class<?> targetClass) {
+    Constructor<?> constructor = BeanDefinitionUtils.findConstructor(targetClass);
+    Set<String> constructorDeps = BeanDefinitionUtils.findRequiredDependencies(constructor);
+
     return BeanDefinition.builder()
         .type(targetClass)
         .name(resolveBeanName(targetClass))
-        .dependsOnBeans(getAutowiredFields(targetClass))
+        .requiredDependencies(constructorDeps)
+        .fieldDependencies(findAutowiredFields(targetClass))
+        .constructor(constructor)
         .build();
   }
 
@@ -71,18 +79,20 @@ public class ComponentAnnotationScanner implements BeanScanner {
    */
   private String resolveBeanName(Class<?> targetClass) {
     var annotationValue = targetClass.getAnnotation(COMPONENT_ANNOTATION).value();
-    return annotationValue.isBlank() ? Helper.resolveBeanName(targetClass) : annotationValue;
+    return annotationValue.isBlank()
+        ? BeanDefinitionUtils.resolveBeanName(targetClass)
+        : annotationValue;
   }
 
   /**
    * @param targetClass object of type {@link Class} that is annotated with @{@link Component}
    *     annotation
-   * @return {@link java.util.List} of {@link String} that represents bean dependencies
+   * @return {@link java.util.Set} of {@link String} that represents bean dependencies
    */
-  private List<String> getAutowiredFields(Class<?> targetClass) {
+  private Set<String> findAutowiredFields(Class<?> targetClass) {
     return Arrays.stream(targetClass.getDeclaredFields())
-        .filter(el -> el.isAnnotationPresent(AUTOWIRED_ANNOTATION))
-        .map(el -> resolveBeanName(el.getType()))
-        .toList();
+        .filter(f -> f.isAnnotationPresent(AUTOWIRED_ANNOTATION))
+        .map(f -> resolveBeanName(f.getType()))
+        .collect(Collectors.toSet());
   }
 }

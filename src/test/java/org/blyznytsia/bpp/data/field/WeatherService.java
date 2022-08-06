@@ -1,4 +1,4 @@
-package org.blyznytsia.bpp.data;
+package org.blyznytsia.bpp.data.field;
 
 import lombok.Getter;
 import org.blyznytsia.annotation.Autowired;

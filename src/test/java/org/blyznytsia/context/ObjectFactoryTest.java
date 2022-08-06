@@ -1,54 +1,54 @@
-package org.blyznytsia.processor;
+package org.blyznytsia.context;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import org.blyznytsia.context.AnnotationApplicationContext;
+import java.util.Set;
+import lombok.SneakyThrows;
+import org.blyznytsia.context.data.EmptyBean;
 import org.blyznytsia.model.BeanDefinition;
-import org.blyznytsia.processor.data.EmptyBean;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.reflections.Reflections;
 
 @ExtendWith(MockitoExtension.class)
-class BeanFactoryProcessorTest {
+class ObjectFactoryTest {
 
   @Mock private AnnotationApplicationContext context;
 
   @Spy private Map<String, Object> container = new HashMap<>();
 
+  @SneakyThrows
   @Test
   void initiateContext_givenValidList_shouldInitializeContext() {
     // given:
     var beanDefinitions =
-        List.of(
+        Set.of(
             BeanDefinition.builder()
                 .name("emptyBean")
                 .type(EmptyBean.class)
-                .dependsOnBeans(emptyList())
+                .fieldDependencies(emptySet())
+                .requiredDependencies(emptySet())
+                .constructor(EmptyBean.class.getConstructor())
                 .build());
 
     when(context.getContainer()).thenReturn(container);
-    when(context.getReflections()).thenReturn(new Reflections());
-    var beanFactoryProcessor = new BeanFactoryProcessor(context);
+    var objectFactory = new ObjectFactory(context);
 
     // when:
-    beanFactoryProcessor.initiateContext(beanDefinitions);
+    objectFactory.initiateContext(beanDefinitions);
     var expected = new EmptyBean();
     var actual = container.get("emptyBean");
 
     // then:
     assertEquals(expected, actual);
-    verify(context).getReflections();
     verify(context).getContainer();
     assertFalse(container.isEmpty());
   }

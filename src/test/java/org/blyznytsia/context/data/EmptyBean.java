@@ -1,4 +1,4 @@
-package org.blyznytsia.processor.data;
+package org.blyznytsia.context.data;
 
 import lombok.Data;
 import org.blyznytsia.annotation.Component;

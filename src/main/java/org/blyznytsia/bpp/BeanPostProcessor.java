@@ -1,11 +1,9 @@
 package org.blyznytsia.bpp;
 
 import org.blyznytsia.context.ApplicationContext;
+import org.blyznytsia.context.ObjectFactory;
 
-/**
- * A hook that allows configuring beans instantiated by {@link
- * org.blyznytsia.processor.BeanFactoryProcessor}.
- */
+/** A hook that allows configuring beans instantiated by {@link ObjectFactory}. */
 public interface BeanPostProcessor {
 
   /**

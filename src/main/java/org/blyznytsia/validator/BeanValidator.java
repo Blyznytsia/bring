@@ -1,9 +1,9 @@
 package org.blyznytsia.validator;
 
-import java.util.List;
+import java.util.Set;
 import org.blyznytsia.model.BeanDefinition;
 
 public interface BeanValidator {
 
-  void validate(List<BeanDefinition> beanDefinitions);
+  void validate(Set<BeanDefinition> beanDefinitions);
 }
