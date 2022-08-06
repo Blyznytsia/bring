@@ -55,7 +55,7 @@ public class ObjectFactory {
     definitions = new HashSet<>(definitions);
     processDefinitionsWithNoDependencies(definitions);
     processDefinitionsWithDependencies(definitions);
-    log.info("Context was successfully initialized with {} beans", definitions.size());
+    log.info("Application context has been successfully initialized");
   }
 
   /**
@@ -104,7 +104,7 @@ public class ObjectFactory {
    */
   @SneakyThrows
   private void createBean(BeanDefinition definition) {
-    log.debug("Creating of bean {}", definition.getName());
+    log.debug("Creating bean {}", definition.getName());
 
     Object bean;
     if (definition.isConfigClassDependency()) {
@@ -114,7 +114,6 @@ public class ObjectFactory {
     }
 
     log.debug("Instantiated bean: {}", definition.getName());
-    log.debug("Configuring {} bean", definition.getName());
     Object configuredBean = configure(bean);
 
     context.getContainer().put(definition.getName(), configuredBean);

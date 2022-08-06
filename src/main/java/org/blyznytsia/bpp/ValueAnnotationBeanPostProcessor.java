@@ -26,7 +26,7 @@ public class ValueAnnotationBeanPostProcessor implements BeanPostProcessor {
   public Object configure(Object bean, ApplicationContext context) {
     for (var field : bean.getClass().getDeclaredFields()) {
       if (field.isAnnotationPresent(Value.class)) {
-        log.debug("Initializing {} field", field);
+        log.debug("Initializing '{}' field", field);
         try {
           var annotation = field.getAnnotation(Value.class);
           Object value =
@@ -40,7 +40,7 @@ public class ValueAnnotationBeanPostProcessor implements BeanPostProcessor {
 
           log.debug(
               "Successfully initialized '{}' field with '{}' value from {}",
-              field.getName(),
+              field,
               typedValue,
               DEFAULT_APPLICATION_PROPERTIES);
 
