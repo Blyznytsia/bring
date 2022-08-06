@@ -20,10 +20,11 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
    */
   @Override
   public Object configure(Object bean, ApplicationContext context) {
-    log.debug("Configuring bean of {} type", bean.getClass());
     try {
       for (var field : bean.getClass().getDeclaredFields()) {
         if (field.isAnnotationPresent(Autowired.class)) {
+          log.debug("Configuring bean of {} type", bean.getClass());
+
           field.setAccessible(true);
           var value = context.getBean(field.getType());
           field.set(bean, value);
